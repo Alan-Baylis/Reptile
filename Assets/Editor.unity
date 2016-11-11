@@ -357,7 +357,8 @@ MonoBehaviour:
   width: 0
   height: 0
   depth: 0
-  material: {fileID: 2100000, guid: 403ab6171daf70844b5ba89dfffb1e9b, type: 2}
+  opaqueMaterial: {fileID: 2100000, guid: 403ab6171daf70844b5ba89dfffb1e9b, type: 2}
+  transparentMaterial: {fileID: 2100000, guid: df0ed6d18cb1fc24f845ad728f512698, type: 2}
 --- !u!4 &630093524
 Transform:
   m_ObjectHideFlags: 0

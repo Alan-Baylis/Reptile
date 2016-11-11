@@ -56,17 +56,17 @@ public class Boundary : MonoBehaviour
         zyMat.mainTextureScale = new Vector2(d, h) / 4f;
         xzMat.mainTextureScale = new Vector2(w, d) / 4f;
 
-        top.localPosition = new Vector3(w / 2f, h, d / 2f);
+        top.localPosition = new Vector3(w / 2f, h + 0.1f, d / 2f);
         top.localScale = new Vector3(w, d, 1f);
-        bottom.localPosition = new Vector3(w / 2f, 0f, d / 2f);
+        bottom.localPosition = new Vector3(w / 2f, -0.1f, d / 2f);
         bottom.localScale = new Vector3(w, d, 1f);
-        right.localPosition = new Vector3(w, h / 2f, d / 2f);
+        right.localPosition = new Vector3(w + 0.1f, h / 2f, d / 2f);
         right.localScale = new Vector3(d, h, 1f);
-        left.localPosition = new Vector3(0f, h / 2f, d / 2f);
+        left.localPosition = new Vector3(-0.1f, h / 2f, d / 2f);
         left.localScale = new Vector3(d, h, 1f);
-        front.localPosition = new Vector3(w / 2f, h / 2f, d);
+        front.localPosition = new Vector3(w / 2f, h / 2f, d + 0.1f);
         front.localScale = new Vector3(w, h, 1f);
-        back.localPosition = new Vector3(w / 2f, h / 2f, 0f);
+        back.localPosition = new Vector3(w / 2f, h / 2f, -0.1f);
         back.localScale = new Vector3(w, h, 1f);
     }
 }

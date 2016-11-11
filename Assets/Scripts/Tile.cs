@@ -11,13 +11,15 @@ public class Tile : MonoBehaviour
     public int height;
     public int depth;
 
-    public Material material;
+    public Material opaqueMaterial;
+    public Material transparentMaterial;
 
     List<Chunk> chunks = new List<Chunk>();
     
     Texture2D tex0;
     Texture2D tex1;
-    Material mat;
+    Material mat0;
+    Material mat1;
 
     void Awake()
     {
@@ -30,9 +32,14 @@ public class Tile : MonoBehaviour
         tex1 = new Texture2D(256, 1, TextureFormat.ARGB32, false);
         tex0.filterMode = FilterMode.Point;
         tex1.filterMode = FilterMode.Point;
-        mat = new Material(material);
-        mat.SetTexture("_MainTex", tex0);
-        mat.SetTexture("_DetailTex", tex1);
+
+        mat0 = new Material(opaqueMaterial);
+        mat0.SetTexture("_MainTex", tex0);
+        mat0.SetTexture("_DetailTex", tex1);
+
+        mat1 = new Material(transparentMaterial);
+        mat1.SetTexture("_MainTex", tex0);
+        mat1.SetTexture("_DetailTex", tex1);
 
         Refresh();
     }
@@ -109,7 +116,7 @@ public class Tile : MonoBehaviour
                         c.layerIndex = layer;
                         c.animationIndex = anim;
                         c.frameIndex = frame;
-                        c.GetComponent<MeshRenderer>().sharedMaterial = mat;
+                        c.GetComponent<MeshRenderer>().sharedMaterials = new[] { mat0, mat1 };
                     }
                     keptChunks.Add(c);
                 }
