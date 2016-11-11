@@ -844,6 +844,24 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 1
+  bindCamZoomIn:
+    name: Zoom Camera In
+    key: 0
+    btn: -1
+    axis: Scroll Wheel
+    negateAxis: 1
+    shift: 0
+    ctrl: 0
+    alt: 0
+  bindCamZoomOut:
+    name: Zoom Camera Out
+    key: 0
+    btn: -1
+    axis: Scroll Wheel
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
   bindCamFocus:
     name: Reset Camera
     key: 102

@@ -18,6 +18,8 @@ public class Edit : MonoBehaviour
     public Binding bindCamRotate;
     public Binding bindCamPan;
     public Binding bindCamZoom;
+    public Binding bindCamZoomIn;
+    public Binding bindCamZoomOut;
     public Binding bindCamFocus;
 
     public Binding bindLightRotate;

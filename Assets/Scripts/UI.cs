@@ -426,6 +426,8 @@ public class UI : MonoBehaviour
             Edit.use.bindCamRotate,
             Edit.use.bindCamPan,
             Edit.use.bindCamZoom,
+            Edit.use.bindCamZoomIn,
+            Edit.use.bindCamZoomOut,
             Edit.use.bindCamFocus,
             Edit.use.bindLightRotate,
             Edit.use.bindToolPlace,
