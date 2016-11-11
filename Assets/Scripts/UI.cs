@@ -452,6 +452,7 @@ public class UI : MonoBehaviour
             if (bind.alt) bits.Add("Alt");
             if (bind.btn >= 0) bits.Add(mbNames[bind.btn]);
             if (bind.key != KeyCode.None) bits.Add(bind.key.ToString());
+            if (bind.axis != "") bits.Add(((bind.negateAxis) ? "-" : "+") + bind.axis);
             GUILayout.Label(string.Join(" + ", bits.ToArray()));
         }
         GUILayout.EndVertical();
