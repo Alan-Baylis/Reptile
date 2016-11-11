@@ -116,14 +116,14 @@ public class Chunk : MonoBehaviour
             }
         }
         
-        mesh.subMeshCount = 2;
+        mesh.subMeshCount = (subTris.Count > 0) ? 2 : 1;
 
         mesh.vertices = verts.ToArray();
         mesh.normals = normals.ToArray();
         mesh.uv = uvs.ToArray();
 
         mesh.SetTriangles(tris.ToArray(), 0);
-        mesh.SetTriangles(subTris.ToArray(), 1);
+        if (mesh.subMeshCount > 1) mesh.SetTriangles(subTris.ToArray(), 1);
 
         mesh.RecalculateBounds();
 
