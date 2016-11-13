@@ -136,6 +136,10 @@ public class Chunk : MonoBehaviour
         GetComponent<MeshFilter>().sharedMesh = mesh;
         GetComponent<MeshCollider>().sharedMesh = null;
         GetComponent<MeshCollider>().sharedMesh = mesh;
+        if (mesh.subMeshCount > 1)
+            GetComponent<MeshRenderer>().sharedMaterials = new[] { tile.mat0, tile.mat1 };
+        else
+            GetComponent<MeshRenderer>().sharedMaterial = tile.mat0;
     }
 
     void AddFace(int x, int y, int z, Vector3 normal, bool subMesh)

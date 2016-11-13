@@ -18,8 +18,11 @@ public class Tile : MonoBehaviour
     
     Texture2D tex0;
     Texture2D tex1;
-    Material mat0;
-    Material mat1;
+
+    [HideInInspector]
+    public Material mat0;
+    [HideInInspector]
+    public Material mat1;
 
     void Awake()
     {
@@ -116,7 +119,6 @@ public class Tile : MonoBehaviour
                         c.layerIndex = layer;
                         c.animationIndex = anim;
                         c.frameIndex = frame;
-                        c.GetComponent<MeshRenderer>().sharedMaterials = new[] { mat0, mat1 };
                     }
                     keptChunks.Add(c);
                 }
