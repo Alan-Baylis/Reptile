@@ -79,7 +79,9 @@ public class UI : MonoBehaviour
         GUILayout.EndScrollView();
         GUILayout.EndHorizontal();
 
-        VColor palColor = ColorEditor(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
+        VColor palColor = null;
+        if (ed.tile.GetPalette().GetIndex() < ed.tile.GetPalette().GetCount())
+            palColor = ColorEditor(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
 
         GUILayout.EndVertical();
         // End palette section
@@ -119,7 +121,7 @@ public class UI : MonoBehaviour
             actQueue.Enqueue(new ChangePaletteColorAct(ed.refPalette.GetColor(refPalIndex), paletteIndex));
         }
 
-        if (paletteIndex < ed.tile.GetPalette().GetCount() && palColor != ed.tile.GetPalette().GetColor(paletteIndex))
+        if (palColor != null && palColor != ed.tile.GetPalette().GetColor(paletteIndex))
         {
             actQueue.Enqueue(new ChangePaletteColorAct(palColor, paletteIndex));
         }
