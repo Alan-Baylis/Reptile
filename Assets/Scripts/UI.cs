@@ -88,7 +88,7 @@ public class UI : MonoBehaviour
 
         // Begin tool section
         GUILayout.BeginVertical();
-        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 5, "tool");
+        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 2, "tool");
         GUILayout.EndVertical();
         // End tool section
 
