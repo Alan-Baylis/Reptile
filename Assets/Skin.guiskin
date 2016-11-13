@@ -1305,8 +1305,8 @@ MonoBehaviour:
     m_TextClipping: 0
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
-    m_FixedWidth: 40
-    m_FixedHeight: 40
+    m_FixedWidth: 30
+    m_FixedHeight: 30
     m_StretchWidth: 0
     m_StretchHeight: 0
   - m_Name: bigswatch
@@ -1363,8 +1363,8 @@ MonoBehaviour:
     m_TextClipping: 0
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
-    m_FixedWidth: 80
-    m_FixedHeight: 80
+    m_FixedWidth: 50
+    m_FixedHeight: 50
     m_StretchWidth: 0
     m_StretchHeight: 0
   m_Settings:

@@ -70,11 +70,11 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
-        refPalScroll = GUILayout.BeginScrollView(refPalScroll, "box", GUILayout.Width(185));
+        refPalScroll = GUILayout.BeginScrollView(refPalScroll, "box", GUILayout.Width(145));
         int refPalIndex = RefPalette();
         GUILayout.EndScrollView();
 
-        palScroll = GUILayout.BeginScrollView(palScroll, "box", GUILayout.Width(185));
+        palScroll = GUILayout.BeginScrollView(palScroll, "box", GUILayout.Width(145));
         int palIndex = Palette();
         GUILayout.EndScrollView();
         GUILayout.EndHorizontal();
@@ -233,7 +233,7 @@ public class UI : MonoBehaviour
     VColor ColorEditor(VColor color)
     {
         color = new VColor(color);
-        GUILayout.BeginVertical("box", GUILayout.Width(375));
+        GUILayout.BeginVertical("box", GUILayout.Width(295));
 
         GUILayout.BeginHorizontal();
 
@@ -371,13 +371,11 @@ public class UI : MonoBehaviour
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
-        if (palette.GetCount() > 1 && GUILayout.Button("-", "swatch"))
+        if (palette.GetCount() > 1 && GUILayout.Button("-"))
         {
             actQueue.Enqueue(new RemovePaletteColorAct());
         }
-        if (palette.GetCount() == 1) GUILayout.Space(40);
-        GUILayout.Space(80);
-        if (palette.GetCount() < 256 && GUILayout.Button("+", "swatch"))
+        if (palette.GetCount() < 256 && GUILayout.Button("+"))
         {
             actQueue.Enqueue(new AddPaletteColorAct(new VColor((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256), 255)));
         }
@@ -398,7 +396,7 @@ public class UI : MonoBehaviour
 
     bool Swatch(bool active, Color color)
     {
-        Rect r = GUILayoutUtility.GetRect(40f, 40f, "swatch");
+        Rect r = GUILayoutUtility.GetRect(30f, 30f, "swatch");
         GUI.DrawTexture(r, alphaTex, ScaleMode.ScaleAndCrop);
         GUI.color = color;
         GUI.DrawTexture(r, blankTex, ScaleMode.ScaleToFit);
@@ -408,7 +406,7 @@ public class UI : MonoBehaviour
 
     bool BigSwatch(bool active, Color color)
     {
-        Rect r = GUILayoutUtility.GetRect(80f, 80f, "bigswatch");
+        Rect r = GUILayoutUtility.GetRect(50f, 50f, "bigswatch");
         GUI.DrawTexture(r, alphaTex, ScaleMode.ScaleAndCrop);
         GUI.color = color;
         GUI.DrawTexture(r, blankTex, ScaleMode.ScaleToFit);
