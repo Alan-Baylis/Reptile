@@ -232,6 +232,9 @@ public class UI : MonoBehaviour
 
     VColor ColorEditor(VColor color)
     {
+        int labelWidth = 60;
+        int fieldWidth = 50;
+
         color = new VColor(color);
         GUILayout.BeginVertical("box", GUILayout.Width(295));
 
@@ -251,61 +254,61 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Red", GUILayout.Width(80));
+        GUILayout.Label("Red", GUILayout.Width(labelWidth));
         color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
         byte r;
-        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(50)), out r)) color.r = r;
+        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Green", GUILayout.Width(80));
+        GUILayout.Label("Green", GUILayout.Width(labelWidth));
         color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
         byte g;
-        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(50)), out g)) color.g = g;
+        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Blue", GUILayout.Width(80));
+        GUILayout.Label("Blue", GUILayout.Width(labelWidth));
         color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
         byte b;
-        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(50)), out b)) color.b = b;
+        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Alpha", GUILayout.Width(80));
+        GUILayout.Label("Alpha", GUILayout.Width(labelWidth));
         color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
         byte a;
-        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(50)), out a)) color.a = a;
+        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
         GUILayout.EndHorizontal();
 
         if (showAdvancedColor)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Metal", GUILayout.Width(80));
+            GUILayout.Label("Metal", GUILayout.Width(labelWidth));
             color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
             byte m;
-            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(50)), out m)) color.m = m;
+            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Smooth", GUILayout.Width(80));
+            GUILayout.Label("Smooth", GUILayout.Width(labelWidth));
             color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
             byte s;
-            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(50)), out s)) color.s = s;
+            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Glow", GUILayout.Width(80));
+            GUILayout.Label("Glow", GUILayout.Width(labelWidth));
             color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
             byte e;
-            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(50)), out e)) color.e = e;
+            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Custom", GUILayout.Width(80));
+            GUILayout.Label("Custom", GUILayout.Width(labelWidth));
             color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
             byte u;
-            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(50)), out u)) color.u = u;
+            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
             GUILayout.EndHorizontal();
         }
 
