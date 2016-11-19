@@ -54,6 +54,10 @@ public class Edit : MonoBehaviour
         use = this;
         tile = new VTile();
         refPalette = new VPalette();
+
+        width = tile.GetWidth();
+        height = tile.GetHeight();
+        depth = tile.GetDepth();
     }
 
     void Update()

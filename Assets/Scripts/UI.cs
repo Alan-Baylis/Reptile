@@ -29,9 +29,6 @@ public class UI : MonoBehaviour
     void Start()
     {
         ed = Edit.use;
-        Edit.width = ed.tile.GetWidth();
-        Edit.height = ed.tile.GetHeight();
-        Edit.depth = ed.tile.GetDepth();
     }
 
     void Update()
