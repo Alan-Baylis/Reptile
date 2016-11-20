@@ -1007,6 +1007,7 @@ MonoBehaviour:
   left: {fileID: 414169376}
   front: {fileID: 732466157}
   back: {fileID: 601483254}
+  gap: 0.001
 --- !u!114 &1114957958
 MonoBehaviour:
   m_ObjectHideFlags: 0
