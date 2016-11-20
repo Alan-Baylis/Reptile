@@ -773,6 +773,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 0.1.0
+  debug: 0
   skin: {fileID: 11400000, guid: d821d7381e850c64db135d3902716b95, type: 2}
   alphaTex: {fileID: 2800000, guid: 835b58605726f3d4db0e9070cdb3ff83, type: 3}
   blankTex: {fileID: 2800000, guid: e0d9c8dbadeabf04baa320e239488e1d, type: 3}
@@ -811,6 +812,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 1
     alt: 0
+    blockedByUI: 0
   bindRedo:
     name: Redo
     key: 121
@@ -820,6 +822,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 1
     alt: 0
+    blockedByUI: 0
   bindCamRotate:
     name: Rotate Camera
     key: 0
@@ -829,6 +832,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 1
+    blockedByUI: 0
   bindCamPan:
     name: Pan Camera
     key: 0
@@ -838,6 +842,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 1
+    blockedByUI: 0
   bindCamZoom:
     name: Zoom Camera
     key: 0
@@ -847,6 +852,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 1
+    blockedByUI: 0
   bindCamZoomIn:
     name: Zoom Camera In
     key: 0
@@ -856,6 +862,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 1
   bindCamZoomOut:
     name: Zoom Camera Out
     key: 0
@@ -865,6 +872,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 1
   bindCamFocus:
     name: Reset Camera
     key: 102
@@ -874,6 +882,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindLightRotate:
     name: Rotate Light
     key: 0
@@ -883,6 +892,7 @@ MonoBehaviour:
     shift: 1
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolPlace:
     name: Select Place Tool
     key: 113
@@ -892,6 +902,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolPaint:
     name: Select Paint Tool
     key: 119
@@ -901,6 +912,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolMove:
     name: 
     key: 101
@@ -910,6 +922,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolBox:
     name: 
     key: 114
@@ -919,6 +932,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolWand:
     name: 
     key: 116
@@ -928,6 +942,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindUseTool:
     name: Use Current Tool
     key: 0
@@ -937,6 +952,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 1
   bindUseToolAlt:
     name: Use Current Tool (Alt Mode)
     key: 0
@@ -946,6 +962,7 @@ MonoBehaviour:
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 1
 --- !u!114 &1114957955
 MonoBehaviour:
   m_ObjectHideFlags: 0

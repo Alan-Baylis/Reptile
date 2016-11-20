@@ -11,9 +11,11 @@ public class Binding {
     public bool shift;
     public bool ctrl;
     public bool alt;
+    public bool blockedByUI;
 
     public bool IsPressed()
     {
+        if (blockedByUI && UI.IsMouseOver()) return false;
         bool res = true;
         if (key != KeyCode.None) res = res && Input.GetKeyDown(key);
         if (btn >= 0) res = res && Input.GetMouseButtonDown(btn);
@@ -23,6 +25,7 @@ public class Binding {
 
     public bool IsHeld()
     {
+        if (blockedByUI && UI.IsMouseOver()) return false;
         bool res = true;
         if (key != KeyCode.None) res = res && Input.GetKey(key);
         if (btn >= 0) res = res && Input.GetMouseButton(btn);
@@ -33,6 +36,7 @@ public class Binding {
 
     public bool IsReleased()
     {
+        if (blockedByUI && UI.IsMouseOver()) return true;
         bool res = true;
         if (key != KeyCode.None) res = res && Input.GetKeyUp(key);
         if (btn >= 0) res = res && Input.GetMouseButtonUp(btn);
