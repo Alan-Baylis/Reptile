@@ -26,6 +26,10 @@ public class UI : MonoBehaviour
 
     Texture2D hTex;
     Texture2D svTex;
+    Texture2D rTex;
+    Texture2D gTex;
+    Texture2D bTex;
+    Texture2D bwTex;
 
     float oldH;
     float oldS;
@@ -42,11 +46,20 @@ public class UI : MonoBehaviour
 
         hTex = new Texture2D(1, 256);
         svTex = new Texture2D(256, 256);
+        rTex = new Texture2D(256, 1);
+        gTex = new Texture2D(256, 1);
+        bTex = new Texture2D(256, 1);
 
         Color32[] pixels = new Color32[256];
         for (int i = 0; i < 256; i++) pixels[255 - i] = Color.HSVToRGB(i / 255f, 1f, 1f);
         hTex.SetPixels32(pixels);
         hTex.Apply();
+
+        bwTex = new Texture2D(256, 1);
+        pixels = new Color32[256];
+        for (int i = 0; i < 256; i++) pixels[i] = Color.HSVToRGB(0f, 0f, i / 255f);
+        bwTex.SetPixels32(pixels);
+        bwTex.Apply();
     }
 
     void Update()
@@ -453,6 +466,16 @@ public class UI : MonoBehaviour
             svTex.SetPixels32(pixels);
             svTex.Apply();
 
+            for (int i = 0; i < 256; i++)
+            {
+                rTex.SetPixel(i, 0, new Color32((byte)i, c.g, c.b, 255));
+                gTex.SetPixel(i, 0, new Color32(c.r, (byte)i, c.b, 255));
+                bTex.SetPixel(i, 0, new Color32(c.r, c.g, (byte)i, 255));
+            }
+            rTex.Apply();
+            gTex.Apply();
+            bTex.Apply();
+
             oldH = hue;
             oldS = sat;
             oldV = val;
@@ -505,6 +528,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginHorizontal();
         GUILayout.Label("Red", GUILayout.Width(labelWidth));
         color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), rTex);
         byte r;
         if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
         GUILayout.EndHorizontal();
@@ -512,6 +536,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginHorizontal();
         GUILayout.Label("Green", GUILayout.Width(labelWidth));
         color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), gTex);
         byte g;
         if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
         GUILayout.EndHorizontal();
@@ -519,6 +544,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginHorizontal();
         GUILayout.Label("Blue", GUILayout.Width(labelWidth));
         color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bTex);
         byte b;
         if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
         GUILayout.EndHorizontal();
@@ -526,6 +552,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginHorizontal();
         GUILayout.Label("Alpha", GUILayout.Width(labelWidth));
         color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
         byte a;
         if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
         GUILayout.EndHorizontal();
@@ -538,6 +565,7 @@ public class UI : MonoBehaviour
             GUILayout.BeginHorizontal();
             GUILayout.Label("Metal", GUILayout.Width(labelWidth));
             color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
             byte m;
             if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
             GUILayout.EndHorizontal();
@@ -545,6 +573,7 @@ public class UI : MonoBehaviour
             GUILayout.BeginHorizontal();
             GUILayout.Label("Smooth", GUILayout.Width(labelWidth));
             color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
             byte s;
             if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
             GUILayout.EndHorizontal();
@@ -552,6 +581,7 @@ public class UI : MonoBehaviour
             GUILayout.BeginHorizontal();
             GUILayout.Label("Glow", GUILayout.Width(labelWidth));
             color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
             byte e;
             if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
             GUILayout.EndHorizontal();
@@ -559,6 +589,7 @@ public class UI : MonoBehaviour
             GUILayout.BeginHorizontal();
             GUILayout.Label("Custom", GUILayout.Width(labelWidth));
             color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
             byte u;
             if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
             GUILayout.EndHorizontal();
