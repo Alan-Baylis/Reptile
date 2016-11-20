@@ -522,10 +522,6 @@ public class UI : MonoBehaviour
         int fieldWidth = 35;
 
         GUILayout.BeginHorizontal();
-
-        GUILayout.BeginVertical();
-
-        GUILayout.BeginHorizontal();
         GUILayout.Label("Red", GUILayout.Width(labelWidth));
         color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
         GUI.DrawTexture(GUILayoutUtility.GetLastRect(), rTex);
@@ -559,9 +555,6 @@ public class UI : MonoBehaviour
 
         if (showAdvancedColor)
         {
-            GUILayout.EndVertical();
-            GUILayout.BeginVertical();
-
             GUILayout.BeginHorizontal();
             GUILayout.Label("Metal", GUILayout.Width(labelWidth));
             color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
@@ -594,10 +587,6 @@ public class UI : MonoBehaviour
             if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
             GUILayout.EndHorizontal();
         }
-
-        GUILayout.EndVertical();
-
-        GUILayout.EndHorizontal();
 
         showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Show Advanced", "button");
 
