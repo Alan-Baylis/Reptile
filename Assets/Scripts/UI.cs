@@ -10,6 +10,7 @@ public class UI : MonoBehaviour
     public GUISkin skin;
     public Texture2D alphaTex;
     public Texture2D blankTex;
+    public Texture2D svCursorTex;
     
     Vector2 palScroll;
     Vector2 refPalScroll;
@@ -21,6 +22,13 @@ public class UI : MonoBehaviour
     bool showAdvancedColor;
     bool showKeyBindings;
 
+    Texture2D hTex;
+    Texture2D svTex;
+
+    float oldH;
+    float oldS;
+    float oldV;
+
     void Awake()
     {
         use = this;
@@ -29,6 +37,14 @@ public class UI : MonoBehaviour
     void Start()
     {
         ed = Edit.use;
+
+        hTex = new Texture2D(1, 256);
+        svTex = new Texture2D(256, 256);
+
+        Color32[] pixels = new Color32[256];
+        for (int i = 0; i < 256; i++) pixels[255 - i] = Color.HSVToRGB(i / 255f, 1f, 1f);
+        hTex.SetPixels32(pixels);
+        hTex.Apply();
     }
 
     void Update()
@@ -76,9 +92,7 @@ public class UI : MonoBehaviour
         GUILayout.EndScrollView();
         GUILayout.EndHorizontal();
 
-        VColor palColor = null;
-        if (ed.tile.GetPalette().GetIndex() < ed.tile.GetPalette().GetCount())
-            palColor = ColorEditor(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
+        VColor palColor = ColorPicker(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
 
         GUILayout.EndVertical();
         // End palette section
@@ -227,99 +241,6 @@ public class UI : MonoBehaviour
         return layerIndex;
     }
 
-    VColor ColorEditor(VColor color)
-    {
-        int labelWidth = 60;
-        int fieldWidth = 50;
-
-        color = new VColor(color);
-        GUILayout.BeginVertical("box", GUILayout.Width(295));
-
-        GUILayout.BeginHorizontal();
-
-        GUILayout.BeginVertical();
-
-        GUILayout.BeginVertical("box");
-        BigSwatch(true, new Color32(color.r, color.g, color.b, color.a));
-        GUILayout.EndVertical();
-
-        if (GUILayout.Button("White")) color = new VColor(255, 255, 255, 255);
-        if (GUILayout.Button("Black")) color = new VColor(0, 0, 0, 255);
-
-        GUILayout.EndVertical();
-
-        GUILayout.BeginVertical();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Red", GUILayout.Width(labelWidth));
-        color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
-        byte r;
-        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Green", GUILayout.Width(labelWidth));
-        color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
-        byte g;
-        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Blue", GUILayout.Width(labelWidth));
-        color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
-        byte b;
-        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Alpha", GUILayout.Width(labelWidth));
-        color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
-        byte a;
-        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
-        GUILayout.EndHorizontal();
-
-        if (showAdvancedColor)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Metal", GUILayout.Width(labelWidth));
-            color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
-            byte m;
-            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Smooth", GUILayout.Width(labelWidth));
-            color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
-            byte s;
-            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Glow", GUILayout.Width(labelWidth));
-            color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
-            byte e;
-            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Custom", GUILayout.Width(labelWidth));
-            color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
-            byte u;
-            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
-            GUILayout.EndHorizontal();
-        }
-
-        showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Show Advanced", "button");
-
-        GUILayout.EndVertical();
-
-        GUILayout.EndHorizontal();
-
-        GUILayout.EndVertical();
-
-        return color;
-    }
-
     int RefPalette()
     {
         int index = -1;
@@ -461,5 +382,161 @@ public class UI : MonoBehaviour
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
         GUILayout.EndArea();
+    }
+    
+    bool svDrag;
+
+    VColor ColorPicker(VColor color)
+    {
+        if (ed.tile.GetPalette().GetIndex() >= ed.tile.GetPalette().GetCount()) return null;
+
+        color = new VColor(color);
+
+        GUILayout.BeginVertical("box", GUILayout.Width(295));
+
+        bool isMouseDown = Event.current.type == EventType.MouseDown;
+        if (Event.current.type == EventType.MouseUp) svDrag = false;
+        bool drag = svDrag && Event.current.type == EventType.MouseDrag;
+        Vector2 mp = Event.current.mousePosition;
+
+        Color32 c = new Color32(color.r, color.g, color.b, color.a);
+        float hue, sat, val;
+        Color.RGBToHSV(c, out hue, out sat, out val);
+
+        if (hue != oldH || sat != oldS || val != oldV)
+        {
+            int width = svTex.width;
+            int height = svTex.height;
+            Color32[] pixels = new Color32[width * height];
+            for (int x = 0; x < width; x ++)
+            {
+                for (int y = 0; y < height; y ++)
+                {
+                    pixels[x + y * width] = Color.HSVToRGB(hue, x / (width - 1f), y / (height - 1f));
+                }
+            }
+            svTex.SetPixels32(pixels);
+            svTex.Apply();
+
+            oldH = hue;
+            oldS = sat;
+            oldV = val;
+        }
+
+        GUILayout.BeginHorizontal();
+
+        Rect rect = GUILayoutUtility.GetRect(svTex.width, svTex.height);
+        rect.width = Mathf.Min(rect.width, svTex.width);
+        rect.height = Mathf.Min(rect.height, svTex.height);
+        GUI.DrawTexture(rect, svTex);
+        if ((isMouseDown || drag) && rect.Contains(mp))
+        {
+            svDrag = true;
+            if (isMouseDown) Event.current.Use();
+            mp.x = Mathf.Clamp(mp.x, rect.xMin, rect.xMax);
+            mp.y = Mathf.Clamp(mp.y, rect.yMin, rect.yMax);
+            int x = Mathf.RoundToInt(mp.x - rect.x);
+            int y = svTex.height - Mathf.RoundToInt(mp.y - rect.y);
+            Color32 tc = svTex.GetPixel(x, y);
+            color.r = tc.r;
+            color.g = tc.g;
+            color.b = tc.b;
+        }
+
+        GUI.color = new Color32((byte)(255 - color.r), (byte)(255 - color.g), (byte)(255 - color.b), 255);
+        GUI.DrawTexture(new Rect(rect.x + rect.width * sat - 4f, rect.yMax - rect.height * val - 4f, 8f, 8f), svCursorTex);
+        GUI.color = Color.white;
+
+        float newHue = GUILayout.VerticalSlider(hue, 0f, 1f, GUILayout.Height(svTex.height));
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), hTex);
+        if (newHue != hue)
+        {
+            if (sat == 0) sat = 7f / 255f;
+            Color32 tc = Color.HSVToRGB(newHue, sat, val);
+            color.r = tc.r;
+            color.g = tc.g;
+            color.b = tc.b;
+        }
+
+        GUILayout.EndHorizontal();
+
+        int labelWidth = 60;
+        int fieldWidth = 35;
+
+        GUILayout.BeginHorizontal();
+
+        GUILayout.BeginVertical();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Red", GUILayout.Width(labelWidth));
+        color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
+        byte r;
+        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Green", GUILayout.Width(labelWidth));
+        color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
+        byte g;
+        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Blue", GUILayout.Width(labelWidth));
+        color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
+        byte b;
+        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Alpha", GUILayout.Width(labelWidth));
+        color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
+        byte a;
+        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
+        GUILayout.EndHorizontal();
+
+        if (showAdvancedColor)
+        {
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Metal", GUILayout.Width(labelWidth));
+            color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
+            byte m;
+            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Smooth", GUILayout.Width(labelWidth));
+            color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
+            byte s;
+            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Glow", GUILayout.Width(labelWidth));
+            color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
+            byte e;
+            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Custom", GUILayout.Width(labelWidth));
+            color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
+            byte u;
+            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
+            GUILayout.EndHorizontal();
+        }
+
+        GUILayout.EndVertical();
+
+        GUILayout.EndHorizontal();
+
+        showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Show Advanced", "button");
+
+        GUILayout.EndVertical();
+
+        return color;
     }
 }

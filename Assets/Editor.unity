@@ -359,6 +359,8 @@ MonoBehaviour:
   depth: 0
   opaqueMaterial: {fileID: 2100000, guid: 403ab6171daf70844b5ba89dfffb1e9b, type: 2}
   transparentMaterial: {fileID: 2100000, guid: df0ed6d18cb1fc24f845ad728f512698, type: 2}
+  mat0: {fileID: 0}
+  mat1: {fileID: 0}
 --- !u!4 &630093524
 Transform:
   m_ObjectHideFlags: 0
@@ -774,6 +776,7 @@ MonoBehaviour:
   skin: {fileID: 11400000, guid: d821d7381e850c64db135d3902716b95, type: 2}
   alphaTex: {fileID: 2800000, guid: 835b58605726f3d4db0e9070cdb3ff83, type: 3}
   blankTex: {fileID: 2800000, guid: e0d9c8dbadeabf04baa320e239488e1d, type: 3}
+  svCursorTex: {fileID: 2800000, guid: 7375a588029150a4ba9a66e05107a903, type: 3}
 --- !u!4 &1114957953
 Transform:
   m_ObjectHideFlags: 0
