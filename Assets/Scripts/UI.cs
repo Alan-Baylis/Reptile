@@ -59,7 +59,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
 
         // Begin header section
-        GUILayout.BeginHorizontal();
+        GUILayout.BeginHorizontal("box");
 
         GUI.enabled = Edit.undos.Count > 0;
         if (GUILayout.Button(Edit.undos.Count > 0 ? "Undo " + Edit.undos.Peek() : "Undo")) actQueue.Enqueue(new UndoAct());
@@ -98,7 +98,7 @@ public class UI : MonoBehaviour
         // End palette section
 
         // Begin tool section
-        GUILayout.BeginVertical();
+        GUILayout.BeginVertical("box");
         Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 2, "tool");
         GUILayout.EndVertical();
         // End tool section
