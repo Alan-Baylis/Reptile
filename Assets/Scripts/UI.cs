@@ -7,6 +7,8 @@ public class UI : MonoBehaviour
 
     public string version;
 
+    public bool debug;
+
     public GUISkin skin;
     public Texture2D alphaTex;
     public Texture2D blankTex;
@@ -52,9 +54,25 @@ public class UI : MonoBehaviour
         while (actQueue.Count > 0) Edit.Do(actQueue.Dequeue());
     }
 
+    List<Rect> boxRects = new List<Rect>();
+
+    public static bool IsMouseOver()
+    {
+        Vector2 mp = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+        foreach (Rect rect in use.boxRects)
+        {
+            if (rect.Contains(mp)) return true;
+        }
+        return false;
+    }
+
     void OnGUI()
     {
+        bool repaint = Event.current.type == EventType.Repaint;
+        if (repaint) boxRects.Clear();
+
         GUI.skin = skin;
+
         GUILayout.BeginArea(new Rect(0f, 0f, Screen.width, Screen.height));
         GUILayout.BeginVertical();
 
@@ -74,6 +92,7 @@ public class UI : MonoBehaviour
         GUILayout.Label("Version " + version);
 
         GUILayout.EndHorizontal();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         // End header section
 
         // Begin middle section
@@ -86,13 +105,16 @@ public class UI : MonoBehaviour
         refPalScroll = GUILayout.BeginScrollView(refPalScroll, "box", GUILayout.Width(145));
         int refPalIndex = RefPalette();
         GUILayout.EndScrollView();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         palScroll = GUILayout.BeginScrollView(palScroll, "box", GUILayout.Width(145));
         int palIndex = Palette();
         GUILayout.EndScrollView();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         GUILayout.EndHorizontal();
 
         VColor palColor = ColorPicker(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
         // End palette section
@@ -101,6 +123,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical("box");
         Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 2, "tool");
         GUILayout.EndVertical();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         // End tool section
 
         GUILayout.FlexibleSpace();
@@ -109,8 +132,10 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
 
         Tile();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         int layerIndex = Layers();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
         // End tile section
@@ -142,6 +167,16 @@ public class UI : MonoBehaviour
         if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
 
         if (layerIndex != ed.tile.GetLayerIndex()) actQueue.Enqueue(new ChangeLayerIndexAct(layerIndex));
+
+        if (debug)
+        {
+            GUI.color = new Color(1f, 0f, 0f, 0.2f);
+            foreach (Rect rect in boxRects)
+            {
+                GUI.Box(rect, "");
+            }
+            GUI.color = Color.white;
+        }
     }
 
     void Tile()
