@@ -853,7 +853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03b4c6eedb6a3c949bbfbed5f18e2697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 0.1.0
+  version: 0.2.0
   debug: 0
   skin: {fileID: 11400000, guid: d821d7381e850c64db135d3902716b95, type: 2}
   alphaTex: {fileID: 2800000, guid: 835b58605726f3d4db0e9070cdb3ff83, type: 3}
@@ -884,6 +884,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tool: 0
+  brush: 0
+  brushSize: 1
   bindUndo:
     name: Undo
     key: 122
