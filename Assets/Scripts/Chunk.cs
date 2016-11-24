@@ -11,6 +11,10 @@ public class Chunk : MonoBehaviour
 
     Mesh mesh;
 
+    protected MeshFilter mf;
+    protected MeshCollider mc;
+    protected MeshRenderer mr;
+
     List<Vector3> verts = new List<Vector3>();
     List<Vector3> normals = new List<Vector3>();
     List<Vector2> uvs = new List<Vector2>();
@@ -19,7 +23,14 @@ public class Chunk : MonoBehaviour
 
     int v;
 
-    public VTileChunk GetChunk()
+    protected virtual void Awake()
+    {
+        mf = GetComponent<MeshFilter>();
+        mc = GetComponent<MeshCollider>();
+        mr = GetComponent<MeshRenderer>();
+    }
+
+    protected virtual VTileChunk GetChunk()
     {
         return tile.GetTile().GetChunk(layerIndex, animationIndex, frameIndex);
     }
@@ -36,7 +47,16 @@ public class Chunk : MonoBehaviour
 
     void LateUpdate()
     {
-        if (GetChunk().IsDirty() || tile.GetTile().GetPalette().IsDirty()) Refresh();
+        VTile t = tile.GetTile();
+
+        if (GetChunk().IsDirty() || t.GetPalette().IsDirty()) Refresh();
+        bool visible = t.GetLayer(layerIndex).GetVisible();
+        if (Tool.editing && layerIndex == t.GetLayerIndex() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex())
+        {
+            visible = false;
+        }
+
+        mr.enabled = visible;
     }
 
     public void Refresh()
@@ -133,13 +153,19 @@ public class Chunk : MonoBehaviour
         tris.Clear();
         subTris.Clear();
 
-        GetComponent<MeshFilter>().sharedMesh = mesh;
-        GetComponent<MeshCollider>().sharedMesh = null;
-        GetComponent<MeshCollider>().sharedMesh = mesh;
-        if (mesh.subMeshCount > 1)
-            GetComponent<MeshRenderer>().sharedMaterials = new[] { tile.mat0, tile.mat1 };
-        else
-            GetComponent<MeshRenderer>().sharedMaterial = tile.mat0;
+        if (mf) mf.sharedMesh = mesh;
+        if (mc)
+        {
+            mc.sharedMesh = null;
+            mc.sharedMesh = mesh;
+        }
+        if (mr)
+        {
+            if (mesh.subMeshCount > 1)
+                mr.sharedMaterials = new[] { tile.mat0, tile.mat1 };
+            else
+                mr.sharedMaterial = tile.mat0;
+        }
     }
 
     void AddFace(int x, int y, int z, Vector3 normal, bool subMesh)
