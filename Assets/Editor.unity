@@ -357,7 +357,10 @@ MonoBehaviour:
   width: 0
   height: 0
   depth: 0
-  material: {fileID: 2100000, guid: 403ab6171daf70844b5ba89dfffb1e9b, type: 2}
+  opaqueMaterial: {fileID: 2100000, guid: 403ab6171daf70844b5ba89dfffb1e9b, type: 2}
+  transparentMaterial: {fileID: 2100000, guid: df0ed6d18cb1fc24f845ad728f512698, type: 2}
+  mat0: {fileID: 0}
+  mat1: {fileID: 0}
 --- !u!4 &630093524
 Transform:
   m_ObjectHideFlags: 0
@@ -737,6 +740,87 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
+--- !u!1 &1053926121
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 169604, guid: 5f2337d0fef691d4497aa778e8a8baeb, type: 2}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 1053926125}
+  - 33: {fileID: 1053926124}
+  - 23: {fileID: 1053926123}
+  - 114: {fileID: 1053926122}
+  m_Layer: 10
+  m_Name: Preview Chunk
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1053926122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1053926121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52c9b655c0ecb174d89abcb308b07461, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tile: {fileID: 630093523}
+  layerIndex: -1
+  animationIndex: -1
+  frameIndex: -1
+--- !u!23 &1053926123
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 2390158, guid: 5f2337d0fef691d4497aa778e8a8baeb,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1053926121}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_Materials:
+  - {fileID: 0}
+  m_SubsetIndices: 
+  m_StaticBatchRoot: {fileID: 0}
+  m_UseLightProbes: 1
+  m_ReflectionProbeUsage: 1
+  m_ProbeAnchor: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+--- !u!33 &1053926124
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 3396438, guid: 5f2337d0fef691d4497aa778e8a8baeb,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1053926121}
+  m_Mesh: {fileID: 0}
+--- !u!4 &1053926125
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 430848, guid: 5f2337d0fef691d4497aa778e8a8baeb, type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1053926121}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.5, y: -0.5, z: -0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
 --- !u!1 &1114957951
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,10 +853,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03b4c6eedb6a3c949bbfbed5f18e2697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 0.1.0
+  version: 0.2.0
+  debug: 0
   skin: {fileID: 11400000, guid: d821d7381e850c64db135d3902716b95, type: 2}
   alphaTex: {fileID: 2800000, guid: 835b58605726f3d4db0e9070cdb3ff83, type: 3}
   blankTex: {fileID: 2800000, guid: e0d9c8dbadeabf04baa320e239488e1d, type: 3}
+  svCursorTex: {fileID: 2800000, guid: 7375a588029150a4ba9a66e05107a903, type: 3}
 --- !u!4 &1114957953
 Transform:
   m_ObjectHideFlags: 0
@@ -798,104 +884,178 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tool: 0
+  brush: 0
+  brushSize: 1
   bindUndo:
     name: Undo
     key: 122
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 1
     alt: 0
+    blockedByUI: 0
   bindRedo:
     name: Redo
     key: 121
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 1
     alt: 0
+    blockedByUI: 0
   bindCamRotate:
     name: Rotate Camera
     key: 0
     btn: 0
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 1
+    blockedByUI: 0
   bindCamPan:
     name: Pan Camera
     key: 0
     btn: 2
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 1
+    blockedByUI: 0
   bindCamZoom:
     name: Zoom Camera
     key: 0
     btn: 1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 1
+    blockedByUI: 0
+  bindCamZoomIn:
+    name: Zoom Camera In
+    key: 0
+    btn: -1
+    axis: Scroll Wheel
+    negateAxis: 1
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 1
+  bindCamZoomOut:
+    name: Zoom Camera Out
+    key: 0
+    btn: -1
+    axis: Scroll Wheel
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 1
   bindCamFocus:
     name: Reset Camera
     key: 102
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindLightRotate:
     name: Rotate Light
     key: 0
     btn: 2
+    axis: 
+    negateAxis: 0
     shift: 1
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolPlace:
     name: Select Place Tool
     key: 113
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolPaint:
     name: Select Paint Tool
     key: 119
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolMove:
     name: 
     key: 101
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolBox:
     name: 
     key: 114
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindToolWand:
     name: 
     key: 116
     btn: -1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 0
   bindUseTool:
     name: Use Current Tool
     key: 0
     btn: 0
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 1
   bindUseToolAlt:
     name: Use Current Tool (Alt Mode)
     key: 0
     btn: 1
+    axis: 
+    negateAxis: 0
     shift: 0
     ctrl: 0
     alt: 0
+    blockedByUI: 1
+  bindPlaneLock:
+    name: Plane Lock
+    key: 120
+    btn: -1
+    axis: 
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 0
 --- !u!114 &1114957955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -940,6 +1100,7 @@ MonoBehaviour:
   left: {fileID: 414169376}
   front: {fileID: 732466157}
   back: {fileID: 601483254}
+  gap: 0.001
 --- !u!114 &1114957958
 MonoBehaviour:
   m_ObjectHideFlags: 0

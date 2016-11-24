@@ -16,15 +16,11 @@ public class VColor : ISerializable
 
     public static bool operator ==(VColor a, VColor b)
     {
-        if ((object)a == null || (object)b == null) return false;
-        return a.r == b.r &&
-               a.g == b.g &&
-               a.b == b.b &&
-               a.a == b.a &&
-               a.m == b.m &&
-               a.s == b.s &&
-               a.e == b.e &&
-               a.u == b.u;
+        if (ReferenceEquals(a, null))
+        {
+            return ReferenceEquals(b, null);
+        }
+        return a.Equals(b);
     }
 
     public static bool operator !=(VColor a, VColor b)
@@ -41,7 +37,14 @@ public class VColor : ISerializable
     {
         VColor c = obj as VColor;
         if (c == null) return false;
-        return c == this;
+        return c.r == r &&
+               c.g == g &&
+               c.b == b &&
+               c.a == a &&
+               c.m == m &&
+               c.s == s &&
+               c.e == e &&
+               c.u == u;
     }
 
     public VColor(VColor o) : this(o.r, o.g, o.b, o.a, o.m, o.s, o.e, o.u)

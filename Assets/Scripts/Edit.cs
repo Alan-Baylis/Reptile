@@ -6,6 +6,8 @@ public class Edit : MonoBehaviour
     public static Edit use;
     public VTile tile;
     public Tool tool;
+    public Brush brush;
+    public int brushSize = 1;
 
     public VPalette refPalette;
 
@@ -18,6 +20,8 @@ public class Edit : MonoBehaviour
     public Binding bindCamRotate;
     public Binding bindCamPan;
     public Binding bindCamZoom;
+    public Binding bindCamZoomIn;
+    public Binding bindCamZoomOut;
     public Binding bindCamFocus;
 
     public Binding bindLightRotate;
@@ -30,6 +34,8 @@ public class Edit : MonoBehaviour
 
     public Binding bindUseTool;
     public Binding bindUseToolAlt;
+
+    public Binding bindPlaneLock;
     
     public static int width;
     public static int height;
@@ -47,11 +53,22 @@ public class Edit : MonoBehaviour
         Wand
     }
 
+    public enum Brush
+    {
+        Cube,
+        Sphere,
+        Diamond
+    }
+
     void Awake()
     {
         use = this;
         tile = new VTile();
         refPalette = new VPalette();
+
+        width = tile.GetWidth();
+        height = tile.GetHeight();
+        depth = tile.GetDepth();
     }
 
     void Update()

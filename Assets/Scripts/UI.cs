@@ -7,9 +7,12 @@ public class UI : MonoBehaviour
 
     public string version;
 
+    public bool debug;
+
     public GUISkin skin;
     public Texture2D alphaTex;
     public Texture2D blankTex;
+    public Texture2D svCursorTex;
     
     Vector2 palScroll;
     Vector2 refPalScroll;
@@ -21,6 +24,17 @@ public class UI : MonoBehaviour
     bool showAdvancedColor;
     bool showKeyBindings;
 
+    Texture2D hTex;
+    Texture2D svTex;
+    Texture2D rTex;
+    Texture2D gTex;
+    Texture2D bTex;
+    Texture2D bwTex;
+
+    float oldH;
+    float oldS;
+    float oldV;
+
     void Awake()
     {
         use = this;
@@ -29,9 +43,23 @@ public class UI : MonoBehaviour
     void Start()
     {
         ed = Edit.use;
-        Edit.width = ed.tile.GetWidth();
-        Edit.height = ed.tile.GetHeight();
-        Edit.depth = ed.tile.GetDepth();
+
+        hTex = new Texture2D(1, 256);
+        svTex = new Texture2D(256, 256);
+        rTex = new Texture2D(256, 1);
+        gTex = new Texture2D(256, 1);
+        bTex = new Texture2D(256, 1);
+
+        Color32[] pixels = new Color32[256];
+        for (int i = 0; i < 256; i++) pixels[255 - i] = Color.HSVToRGB(i / 255f, 1f, 1f);
+        hTex.SetPixels32(pixels);
+        hTex.Apply();
+
+        bwTex = new Texture2D(256, 1);
+        pixels = new Color32[256];
+        for (int i = 0; i < 256; i++) pixels[i] = Color.HSVToRGB(0f, 0f, i / 255f);
+        bwTex.SetPixels32(pixels);
+        bwTex.Apply();
     }
 
     void Update()
@@ -39,14 +67,30 @@ public class UI : MonoBehaviour
         while (actQueue.Count > 0) Edit.Do(actQueue.Dequeue());
     }
 
+    List<Rect> boxRects = new List<Rect>();
+
+    public static bool IsMouseOver()
+    {
+        Vector2 mp = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+        foreach (Rect rect in use.boxRects)
+        {
+            if (rect.Contains(mp)) return true;
+        }
+        return false;
+    }
+
     void OnGUI()
     {
+        bool repaint = Event.current.type == EventType.Repaint;
+        if (repaint) boxRects.Clear();
+
         GUI.skin = skin;
+
         GUILayout.BeginArea(new Rect(0f, 0f, Screen.width, Screen.height));
         GUILayout.BeginVertical();
 
         // Begin header section
-        GUILayout.BeginHorizontal();
+        GUILayout.BeginHorizontal("box");
 
         GUI.enabled = Edit.undos.Count > 0;
         if (GUILayout.Button(Edit.undos.Count > 0 ? "Undo " + Edit.undos.Peek() : "Undo")) actQueue.Enqueue(new UndoAct());
@@ -61,6 +105,7 @@ public class UI : MonoBehaviour
         GUILayout.Label("Version " + version);
 
         GUILayout.EndHorizontal();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         // End header section
 
         // Begin middle section
@@ -70,24 +115,42 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
-        refPalScroll = GUILayout.BeginScrollView(refPalScroll, "box", GUILayout.Width(185));
+        refPalScroll = GUILayout.BeginScrollView(refPalScroll, "box", GUILayout.Width(145));
         int refPalIndex = RefPalette();
         GUILayout.EndScrollView();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
-        palScroll = GUILayout.BeginScrollView(palScroll, "box", GUILayout.Width(185));
+        palScroll = GUILayout.BeginScrollView(palScroll, "box", GUILayout.Width(145));
         int palIndex = Palette();
         GUILayout.EndScrollView();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         GUILayout.EndHorizontal();
 
-        VColor palColor = ColorEditor(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
+        VColor palColor = ColorPicker(ed.tile.GetPalette().GetColor(ed.tile.GetPalette().GetIndex()));
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
         // End palette section
 
         // Begin tool section
-        GUILayout.BeginVertical();
-        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 5, "tool");
+        GUILayout.BeginVertical("box");
+        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 2, "tool");
+
+        GUILayout.BeginHorizontal();
+        Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 3);
+        GUI.enabled = ed.brushSize > 1;
+        if (GUILayout.Button("-")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize - 1));
+        GUI.enabled = true;
+        int brushSize;
+        if (int.TryParse(GUILayout.TextField(ed.brushSize.ToString()), out brushSize))
+        {
+            if (brushSize != ed.brushSize) actQueue.Enqueue(new ChangeBrushSizeAct(brushSize));
+        }
+        if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
+        GUILayout.EndHorizontal();
+
         GUILayout.EndVertical();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         // End tool section
 
         GUILayout.FlexibleSpace();
@@ -96,8 +159,10 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
 
         Tile();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         int layerIndex = Layers();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
         // End tile section
@@ -119,7 +184,7 @@ public class UI : MonoBehaviour
             actQueue.Enqueue(new ChangePaletteColorAct(ed.refPalette.GetColor(refPalIndex), paletteIndex));
         }
 
-        if (paletteIndex < ed.tile.GetPalette().GetCount() && palColor != ed.tile.GetPalette().GetColor(paletteIndex))
+        if (palColor != null && palColor != ed.tile.GetPalette().GetColor(paletteIndex))
         {
             actQueue.Enqueue(new ChangePaletteColorAct(palColor, paletteIndex));
         }
@@ -128,7 +193,19 @@ public class UI : MonoBehaviour
 
         if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
 
+        if (brush != Edit.use.brush) actQueue.Enqueue(new ChangeBrushAct(brush));
+
         if (layerIndex != ed.tile.GetLayerIndex()) actQueue.Enqueue(new ChangeLayerIndexAct(layerIndex));
+
+        if (debug)
+        {
+            GUI.color = new Color(1f, 0f, 0f, 0.2f);
+            foreach (Rect rect in boxRects)
+            {
+                GUI.Box(rect, "");
+            }
+            GUI.color = Color.white;
+        }
     }
 
     void Tile()
@@ -228,96 +305,6 @@ public class UI : MonoBehaviour
         return layerIndex;
     }
 
-    VColor ColorEditor(VColor color)
-    {
-        color = new VColor(color);
-        GUILayout.BeginVertical("box", GUILayout.Width(375));
-
-        GUILayout.BeginHorizontal();
-
-        GUILayout.BeginVertical();
-
-        GUILayout.BeginVertical("box");
-        BigSwatch(true, new Color32(color.r, color.g, color.b, color.a));
-        GUILayout.EndVertical();
-
-        if (GUILayout.Button("White")) color = new VColor(255, 255, 255, 255);
-        if (GUILayout.Button("Black")) color = new VColor(0, 0, 0, 255);
-
-        GUILayout.EndVertical();
-
-        GUILayout.BeginVertical();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Red", GUILayout.Width(80));
-        color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
-        byte r;
-        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(50)), out r)) color.r = r;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Green", GUILayout.Width(80));
-        color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
-        byte g;
-        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(50)), out g)) color.g = g;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Blue", GUILayout.Width(80));
-        color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
-        byte b;
-        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(50)), out b)) color.b = b;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Alpha", GUILayout.Width(80));
-        color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
-        byte a;
-        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(50)), out a)) color.a = a;
-        GUILayout.EndHorizontal();
-
-        if (showAdvancedColor)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Metal", GUILayout.Width(80));
-            color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
-            byte m;
-            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(50)), out m)) color.m = m;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Smooth", GUILayout.Width(80));
-            color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
-            byte s;
-            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(50)), out s)) color.s = s;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Glow", GUILayout.Width(80));
-            color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
-            byte e;
-            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(50)), out e)) color.e = e;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Custom", GUILayout.Width(80));
-            color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
-            byte u;
-            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(50)), out u)) color.u = u;
-            GUILayout.EndHorizontal();
-        }
-
-        showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Show Advanced", "button");
-
-        GUILayout.EndVertical();
-
-        GUILayout.EndHorizontal();
-
-        GUILayout.EndVertical();
-
-        return color;
-    }
-
     int RefPalette()
     {
         int index = -1;
@@ -369,13 +356,11 @@ public class UI : MonoBehaviour
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
-        if (palette.GetCount() > 1 && GUILayout.Button("-", "swatch"))
+        if (palette.GetCount() > 1 && GUILayout.Button("-"))
         {
             actQueue.Enqueue(new RemovePaletteColorAct());
         }
-        if (palette.GetCount() == 1) GUILayout.Space(40);
-        GUILayout.Space(80);
-        if (palette.GetCount() < 256 && GUILayout.Button("+", "swatch"))
+        if (palette.GetCount() < 256 && GUILayout.Button("+"))
         {
             actQueue.Enqueue(new AddPaletteColorAct(new VColor((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256), 255)));
         }
@@ -396,7 +381,7 @@ public class UI : MonoBehaviour
 
     bool Swatch(bool active, Color color)
     {
-        Rect r = GUILayoutUtility.GetRect(40f, 40f, "swatch");
+        Rect r = GUILayoutUtility.GetRect(30f, 30f, "swatch");
         GUI.DrawTexture(r, alphaTex, ScaleMode.ScaleAndCrop);
         GUI.color = color;
         GUI.DrawTexture(r, blankTex, ScaleMode.ScaleToFit);
@@ -406,7 +391,7 @@ public class UI : MonoBehaviour
 
     bool BigSwatch(bool active, Color color)
     {
-        Rect r = GUILayoutUtility.GetRect(80f, 80f, "bigswatch");
+        Rect r = GUILayoutUtility.GetRect(50f, 50f, "bigswatch");
         GUI.DrawTexture(r, alphaTex, ScaleMode.ScaleAndCrop);
         GUI.color = color;
         GUI.DrawTexture(r, blankTex, ScaleMode.ScaleToFit);
@@ -426,12 +411,15 @@ public class UI : MonoBehaviour
             Edit.use.bindCamRotate,
             Edit.use.bindCamPan,
             Edit.use.bindCamZoom,
+            Edit.use.bindCamZoomIn,
+            Edit.use.bindCamZoomOut,
             Edit.use.bindCamFocus,
             Edit.use.bindLightRotate,
             Edit.use.bindToolPlace,
             Edit.use.bindToolPaint,
             Edit.use.bindUseTool,
-            Edit.use.bindUseToolAlt
+            Edit.use.bindUseToolAlt,
+            Edit.use.bindPlaneLock
         };
 
         GUILayout.BeginArea(new Rect(0f, 25f, Screen.width, Screen.height - 25f));
@@ -452,11 +440,175 @@ public class UI : MonoBehaviour
             if (bind.alt) bits.Add("Alt");
             if (bind.btn >= 0) bits.Add(mbNames[bind.btn]);
             if (bind.key != KeyCode.None) bits.Add(bind.key.ToString());
+            if (bind.axis != "") bits.Add(((bind.negateAxis) ? "-" : "+") + bind.axis);
             GUILayout.Label(string.Join(" + ", bits.ToArray()));
         }
         GUILayout.EndVertical();
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
         GUILayout.EndArea();
+    }
+    
+    bool svDrag;
+
+    VColor ColorPicker(VColor color)
+    {
+        if (ed.tile.GetPalette().GetIndex() >= ed.tile.GetPalette().GetCount()) return null;
+
+        color = new VColor(color);
+
+        GUILayout.BeginVertical("box", GUILayout.Width(295));
+
+        bool isMouseDown = Event.current.type == EventType.MouseDown;
+        if (Event.current.type == EventType.MouseUp) svDrag = false;
+        bool drag = svDrag && Event.current.type == EventType.MouseDrag;
+        Vector2 mp = Event.current.mousePosition;
+
+        Color32 c = new Color32(color.r, color.g, color.b, color.a);
+        float hue, sat, val;
+        Color.RGBToHSV(c, out hue, out sat, out val);
+
+        if (hue != oldH || sat != oldS || val != oldV)
+        {
+            int width = svTex.width;
+            int height = svTex.height;
+            Color32[] pixels = new Color32[width * height];
+            for (int x = 0; x < width; x ++)
+            {
+                for (int y = 0; y < height; y ++)
+                {
+                    pixels[x + y * width] = Color.HSVToRGB(hue, x / (width - 1f), y / (height - 1f));
+                }
+            }
+            svTex.SetPixels32(pixels);
+            svTex.Apply();
+
+            for (int i = 0; i < 256; i++)
+            {
+                rTex.SetPixel(i, 0, new Color32((byte)i, c.g, c.b, 255));
+                gTex.SetPixel(i, 0, new Color32(c.r, (byte)i, c.b, 255));
+                bTex.SetPixel(i, 0, new Color32(c.r, c.g, (byte)i, 255));
+            }
+            rTex.Apply();
+            gTex.Apply();
+            bTex.Apply();
+
+            oldH = hue;
+            oldS = sat;
+            oldV = val;
+        }
+
+        GUILayout.BeginHorizontal();
+
+        Rect rect = GUILayoutUtility.GetRect(svTex.width, svTex.height);
+        rect.width = Mathf.Min(rect.width, svTex.width);
+        rect.height = Mathf.Min(rect.height, svTex.height);
+        GUI.DrawTexture(rect, svTex);
+        if ((isMouseDown || drag) && rect.Contains(mp))
+        {
+            svDrag = true;
+            if (isMouseDown) Event.current.Use();
+            mp.x = Mathf.Clamp(mp.x, rect.xMin, rect.xMax);
+            mp.y = Mathf.Clamp(mp.y, rect.yMin, rect.yMax);
+            int x = Mathf.RoundToInt(mp.x - rect.x);
+            int y = svTex.height - Mathf.RoundToInt(mp.y - rect.y);
+            Color32 tc = svTex.GetPixel(x, y);
+            color.r = tc.r;
+            color.g = tc.g;
+            color.b = tc.b;
+        }
+
+        GUI.color = new Color32((byte)(255 - color.r), (byte)(255 - color.g), (byte)(255 - color.b), 255);
+        GUI.DrawTexture(new Rect(rect.x + rect.width * sat - 4f, rect.yMax - rect.height * val - 4f, 8f, 8f), svCursorTex);
+        GUI.color = Color.white;
+
+        float newHue = GUILayout.VerticalSlider(hue, 0f, 1f, GUILayout.Height(svTex.height));
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), hTex);
+        if (newHue != hue)
+        {
+            if (sat == 0) sat = 7f / 255f;
+            Color32 tc = Color.HSVToRGB(newHue, sat, val);
+            color.r = tc.r;
+            color.g = tc.g;
+            color.b = tc.b;
+        }
+
+        GUILayout.EndHorizontal();
+
+        int labelWidth = 60;
+        int fieldWidth = 35;
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Red", GUILayout.Width(labelWidth));
+        color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), rTex);
+        byte r;
+        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Green", GUILayout.Width(labelWidth));
+        color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), gTex);
+        byte g;
+        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Blue", GUILayout.Width(labelWidth));
+        color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bTex);
+        byte b;
+        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Alpha", GUILayout.Width(labelWidth));
+        color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
+        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+        byte a;
+        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
+        GUILayout.EndHorizontal();
+
+        if (showAdvancedColor)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Metal", GUILayout.Width(labelWidth));
+            color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+            byte m;
+            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Smooth", GUILayout.Width(labelWidth));
+            color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+            byte s;
+            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Glow", GUILayout.Width(labelWidth));
+            color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+            byte e;
+            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Custom", GUILayout.Width(labelWidth));
+            color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+            byte u;
+            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
+            GUILayout.EndHorizontal();
+        }
+
+        showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Show Advanced", "button");
+
+        GUILayout.EndVertical();
+
+        return color;
     }
 }

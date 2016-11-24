@@ -6,13 +6,18 @@ public class Binding {
     public string name;
     public KeyCode key;
     public int btn = -1;
+    public string axis;
+    public bool negateAxis;
     public bool shift;
     public bool ctrl;
     public bool alt;
+    public bool blockedByUI;
 
     public bool IsPressed()
     {
-        bool res = (key == KeyCode.None && btn >= 0) ? true : Input.GetKeyDown(key);
+        if (blockedByUI && UI.IsMouseOver()) return false;
+        bool res = true;
+        if (key != KeyCode.None) res = res && Input.GetKeyDown(key);
         if (btn >= 0) res = res && Input.GetMouseButtonDown(btn);
         res = res && AreModifiersHeld();
         return res;
@@ -20,15 +25,20 @@ public class Binding {
 
     public bool IsHeld()
     {
-        bool res = (key == KeyCode.None && btn >= 0) ? true : Input.GetKey(key);
+        if (blockedByUI && UI.IsMouseOver()) return false;
+        bool res = true;
+        if (key != KeyCode.None) res = res && Input.GetKey(key);
         if (btn >= 0) res = res && Input.GetMouseButton(btn);
+        if (axis != "") res = res && ((negateAxis) ? Input.GetAxis(axis) < 0 : Input.GetAxis(axis) > 0);
         res = res && AreModifiersHeld();
         return res;
     }
 
     public bool IsReleased()
     {
-        bool res = (key == KeyCode.None && btn >= 0) ? true : Input.GetKeyUp(key);
+        if (blockedByUI && UI.IsMouseOver()) return true;
+        bool res = true;
+        if (key != KeyCode.None) res = res && Input.GetKeyUp(key);
         if (btn >= 0) res = res && Input.GetMouseButtonUp(btn);
         res = res && AreModifiersHeld();
         return res;

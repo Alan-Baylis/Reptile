@@ -11,14 +11,26 @@ public class Chunk : MonoBehaviour
 
     Mesh mesh;
 
+    protected MeshFilter mf;
+    protected MeshCollider mc;
+    protected MeshRenderer mr;
+
     List<Vector3> verts = new List<Vector3>();
     List<Vector3> normals = new List<Vector3>();
     List<Vector2> uvs = new List<Vector2>();
     List<int> tris = new List<int>();
+    List<int> subTris = new List<int>();
 
     int v;
 
-    public VTileChunk GetChunk()
+    protected virtual void Awake()
+    {
+        mf = GetComponent<MeshFilter>();
+        mc = GetComponent<MeshCollider>();
+        mr = GetComponent<MeshRenderer>();
+    }
+
+    protected virtual VTileChunk GetChunk()
     {
         return tile.GetTile().GetChunk(layerIndex, animationIndex, frameIndex);
     }
@@ -35,7 +47,16 @@ public class Chunk : MonoBehaviour
 
     void LateUpdate()
     {
-        if (GetChunk().IsDirty() || tile.GetTile().GetPalette().IsDirty()) Refresh();
+        VTile t = tile.GetTile();
+
+        if (GetChunk().IsDirty() || t.GetPalette().IsDirty()) Refresh();
+        bool visible = t.GetLayer(layerIndex).GetVisible();
+        if (Tool.editing && layerIndex == t.GetLayerIndex() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex())
+        {
+            visible = false;
+        }
+
+        mr.enabled = visible;
     }
 
     public void Refresh()
@@ -51,71 +72,78 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z < tile.depth; z ++)
                 {
+                    VColor c = GetColor(x, y, z);
                     if (GetColor(x, y, z).a == 0) continue;
                     Vector3 p = new Vector3(x, y, z);
 
-                    if (x == 0 || GetColor(x - 1, y, z).a == 0)
+                    bool useSubMesh = c.a < 255;
+
+                    if (x == 0 || (GetColor(x - 1, y, z).a < 255 && GetColor(x - 1, y, z) != c))
                     {
                         verts.Add(p + new Vector3(0f, 0f, 1f));
                         verts.Add(p + new Vector3(0f, 1f, 1f));
                         verts.Add(p + new Vector3(0f, 1f, 0f));
                         verts.Add(p + new Vector3(0f, 0f, 0f));
 
-                        AddFace(x, y, z, Vector3.left);
+                        AddFace(x, y, z, Vector3.left, useSubMesh);
                     }
-                    if (x == tile.width - 1 || GetColor(x + 1, y, z).a == 0)
+                    if (x == tile.width - 1 || (GetColor(x + 1, y, z).a < 255 && GetColor(x + 1, y, z) != c))
                     {
                         verts.Add(p + new Vector3(1f, 0f, 0f));
                         verts.Add(p + new Vector3(1f, 1f, 0f));
                         verts.Add(p + new Vector3(1f, 1f, 1f));
                         verts.Add(p + new Vector3(1f, 0f, 1f));
 
-                        AddFace(x, y, z, Vector3.right);
+                        AddFace(x, y, z, Vector3.right, useSubMesh);
                     }
-                    if (y == 0 || GetColor(x, y - 1, z).a == 0)
+                    if (y == 0 || (GetColor(x, y - 1, z).a < 255 && GetColor(x, y - 1, z) != c))
                     {
                         verts.Add(p + new Vector3(1f, 0f, 0f));
                         verts.Add(p + new Vector3(1f, 0f, 1f));
                         verts.Add(p + new Vector3(0f, 0f, 1f));
                         verts.Add(p + new Vector3(0f, 0f, 0f));
 
-                        AddFace(x, y, z, Vector3.down);
+                        AddFace(x, y, z, Vector3.down, useSubMesh);
                     }
-                    if (y == tile.height - 1 || GetColor(x, y + 1, z).a == 0)
+                    if (y == tile.height - 1 || (GetColor(x, y + 1, z).a < 255 && GetColor(x, y + 1, z) != c))
                     {
                         verts.Add(p + new Vector3(0f, 1f, 0f));
                         verts.Add(p + new Vector3(0f, 1f, 1f));
                         verts.Add(p + new Vector3(1f, 1f, 1f));
                         verts.Add(p + new Vector3(1f, 1f, 0f));
 
-                        AddFace(x, y, z, Vector3.up);
+                        AddFace(x, y, z, Vector3.up, useSubMesh);
                     }
-                    if (z == 0 || GetColor(x, y, z - 1).a == 0)
+                    if (z == 0 || (GetColor(x, y, z - 1).a < 255 && GetColor(x, y, z - 1) != c))
                     {
                         verts.Add(p + new Vector3(0f, 0f, 0f));
                         verts.Add(p + new Vector3(0f, 1f, 0f));
                         verts.Add(p + new Vector3(1f, 1f, 0f));
                         verts.Add(p + new Vector3(1f, 0f, 0f));
 
-                        AddFace(x, y, z, Vector3.back);
+                        AddFace(x, y, z, Vector3.back, useSubMesh);
                     }
-                    if (z == tile.depth - 1 || GetColor(x, y, z + 1).a == 0)
+                    if (z == tile.depth - 1 || (GetColor(x, y, z + 1).a < 255 && GetColor(x, y, z + 1) != c))
                     {
                         verts.Add(p + new Vector3(1f, 0f, 1f));
                         verts.Add(p + new Vector3(1f, 1f, 1f));
                         verts.Add(p + new Vector3(0f, 1f, 1f));
                         verts.Add(p + new Vector3(0f, 0f, 1f));
 
-                        AddFace(x, y, z, Vector3.forward);
+                        AddFace(x, y, z, Vector3.forward, useSubMesh);
                     }
                 }
             }
         }
+        
+        mesh.subMeshCount = (subTris.Count > 0) ? 2 : 1;
 
         mesh.vertices = verts.ToArray();
         mesh.normals = normals.ToArray();
         mesh.uv = uvs.ToArray();
-        mesh.triangles = tris.ToArray();
+
+        mesh.SetTriangles(tris.ToArray(), 0);
+        if (mesh.subMeshCount > 1) mesh.SetTriangles(subTris.ToArray(), 1);
 
         mesh.RecalculateBounds();
 
@@ -123,26 +151,39 @@ public class Chunk : MonoBehaviour
         normals.Clear();
         uvs.Clear();
         tris.Clear();
+        subTris.Clear();
 
-        GetComponent<MeshFilter>().sharedMesh = mesh;
-        GetComponent<MeshCollider>().sharedMesh = null;
-        GetComponent<MeshCollider>().sharedMesh = mesh;
+        if (mf) mf.sharedMesh = mesh;
+        if (mc)
+        {
+            mc.sharedMesh = null;
+            mc.sharedMesh = mesh;
+        }
+        if (mr)
+        {
+            if (mesh.subMeshCount > 1)
+                mr.sharedMaterials = new[] { tile.mat0, tile.mat1 };
+            else
+                mr.sharedMaterial = tile.mat0;
+        }
     }
 
-    void AddFace(int x, int y, int z, Vector3 normal)
+    void AddFace(int x, int y, int z, Vector3 normal, bool subMesh)
     {
         normals.Add(normal);
         normals.Add(normal);
         normals.Add(normal);
         normals.Add(normal);
 
-        tris.Add(v + 0);
-        tris.Add(v + 1);
-        tris.Add(v + 2);
+        List<int> triList = (subMesh) ? subTris : tris;
 
-        tris.Add(v + 0);
-        tris.Add(v + 2);
-        tris.Add(v + 3);
+        triList.Add(v + 0);
+        triList.Add(v + 1);
+        triList.Add(v + 2);
+
+        triList.Add(v + 0);
+        triList.Add(v + 2);
+        triList.Add(v + 3);
 
         v += 4;
 

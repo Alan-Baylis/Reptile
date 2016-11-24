@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Tool : MonoBehaviour
 {
@@ -7,6 +7,7 @@ public class Tool : MonoBehaviour
     public LayerMask mask;
 
     public static Tool use;
+    public static bool editing;
 
     void Awake()
     {
@@ -21,21 +22,28 @@ public class Tool : MonoBehaviour
     int ny;
     int nz;
 
+    bool badPlane;
     Plane plane;
+
+    Dictionary<int, byte> edits = new Dictionary<int, byte>();
 
     void Update()
     {
-        bool useToolPressed = Edit.use.bindUseTool.IsPressed();
-        bool useToolHeld = Edit.use.bindUseTool.IsHeld();
-        bool useTool = useToolPressed || useToolHeld;
+        bool toolHeld = Edit.use.bindUseTool.IsHeld() || Edit.use.bindUseToolAlt.IsHeld();
+        bool toolAlt = Edit.use.bindUseToolAlt.IsHeld();
 
-        bool useToolAltPressed = Edit.use.bindUseToolAlt.IsPressed();
-        bool useToolAltHeld = Edit.use.bindUseToolAlt.IsHeld();
-        bool useToolAlt = useToolAltPressed || useToolAltHeld;
+        bool planeLock = Edit.use.bindPlaneLock.IsHeld();
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (!useToolHeld && !useToolAltHeld)
+        if (toolHeld && !editing)
+        {
+            editing = true;
+            PreviewChunk.use.chunk.SetPaletteIndices(GetChunk().GetPaletteIndices());
+            badPlane = true;
+        }
+
+        if (!planeLock || badPlane)
         {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 1000f, mask))
@@ -69,6 +77,7 @@ public class Tool : MonoBehaviour
                 cursor.forward = n;
 
                 plane = new Plane(n, p);
+                badPlane = false;
             }
             else
             {
@@ -76,12 +85,9 @@ public class Tool : MonoBehaviour
             }
         }else
         {
-            cursor.gameObject.SetActive(false);
-
             float dist;
             if (plane.Raycast(ray, out dist))
             {
-
                 Vector3 p = ray.GetPoint(dist);
                 Vector3 n = plane.normal;
 
@@ -107,17 +113,93 @@ public class Tool : MonoBehaviour
 
                 cursor.position = p;
                 cursor.forward = n;
+                
+                cursor.gameObject.SetActive(!IsOutOfBounds(px+nx, py+ny, pz+nz));
+            }
+            else
+            {
+                cursor.gameObject.SetActive(false);
             }
         }
-        if (useTool || useToolAlt)
+        if (toolHeld)
         {
-            if (Edit.use.tool == Edit.Tool.Place && useTool && !IsOutOfBounds(px + nx, py + ny, pz + nz))
-                Edit.Do(new UsePlaceToolAct(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex()));
-            if (Edit.use.tool == Edit.Tool.Place && useToolAlt && !IsOutOfBounds(px, py, pz))
-                Edit.Do(new UsePlaceToolAct(px, py, pz, 0));
-            if (Edit.use.tool == Edit.Tool.Paint && !IsOutOfBounds(px, py, pz))
-                Edit.Do(new UsePaintToolAct(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex()));
+            if (Edit.use.tool == Edit.Tool.Place && !toolAlt)
+            {
+                Paint(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Empty);
+            }
+            if (Edit.use.tool == Edit.Tool.Place && toolAlt)
+            {
+                Paint(px, py, pz, 0, PaintMode.Filled);
+            }
+            if (Edit.use.tool == Edit.Tool.Paint)
+            {
+                Paint(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Filled);
+            }
         }
+        if (editing && !toolHeld)
+        {
+            if (edits.Count > 0)
+            {
+                byte[] indices = GetChunk().GetPaletteIndices();
+                foreach (var pair in edits)
+                {
+                    indices[pair.Key] = pair.Value;
+                }
+                Edit.Do(new EditChunkAct(indices));
+                edits.Clear();
+            }
+
+            editing = false;
+
+            PreviewChunk.use.Clear();
+        }
+    }
+
+    VTileChunk GetChunk()
+    {
+        return Edit.use.tile.GetChunk(Edit.use.tile.GetLayerIndex(), Edit.use.tile.GetAnimationIndex(), Edit.use.tile.GetFrameIndex());
+    }
+
+    bool IsEmpty(int x, int y, int z)
+    {
+        return GetChunk().GetPaletteIndexAt(x, y, z) == 0;
+    }
+
+    enum PaintMode
+    {
+        Filled,
+        Empty,
+        Any
+    }
+
+    void Paint(int x, int y, int z, byte color, PaintMode mode)
+    {
+        Edit.Brush brush = Edit.use.brush;
+        int size = Edit.use.brushSize;
+
+        for (int px = x - (size - 1); px <= x + (size - 1); px ++)
+        {
+            for (int py = y - (size - 1); py <= y + (size - 1); py++)
+            {
+                for (int pz = z - (size - 1); pz <= z + (size - 1); pz++)
+                {
+                    if (IsOutOfBounds(px, py, pz)) continue;
+                    if (mode == PaintMode.Filled && IsEmpty(px, py, pz)) continue;
+                    if (mode == PaintMode.Empty && !IsEmpty(px, py, pz)) continue;
+                    if (brush == Edit.Brush.Diamond && Mathf.Abs(px - x) + Mathf.Abs(py - y) + Mathf.Abs(pz - z) >= size) continue;
+                    if (brush == Edit.Brush.Sphere && Vector3.Distance(new Vector3(x, y, z), new Vector3(px, py, pz)) > size) continue;
+
+                    PreviewChunk.use.chunk.SetPaletteIndexAt(px, py, pz, color);
+                    edits[ToIndex(px, py, pz)] = color;
+                }
+            }
+        }
+    }
+
+    int ToIndex(int x, int y, int z)
+    {
+        VTileChunk c = GetChunk();
+        return z * c.GetWidth() * c.GetHeight() + y * c.GetWidth() + x;
     }
 
     bool IsOutOfBounds(int x, int y, int z)

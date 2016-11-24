@@ -35,6 +35,12 @@ public class Cam : MonoBehaviour
             if (dist < 0f) dist = 0f;
         }
 
+        if (Edit.use.bindCamZoomIn.IsHeld() || Edit.use.bindCamZoomOut.IsHeld())
+        {
+            dist += zoomSpeed * ((Edit.use.bindCamZoomIn.IsHeld()) ? 1f : -1f);
+            if (dist < 0f) dist = 0f;
+        }
+
         if (Edit.use.bindCamFocus.IsPressed())
         {
             focus = new Vector3(Edit.use.tile.GetWidth(), Edit.use.tile.GetHeight(), Edit.use.tile.GetDepth()) * 0.5f - Vector3.one * 0.5f;

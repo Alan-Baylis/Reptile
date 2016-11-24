@@ -55,6 +55,19 @@ public class VTileChunk : VChunk
         SetDirty();
     }
 
+    public byte[] GetPaletteIndices()
+    {
+        byte[] indices = new byte[data.Length];
+        data.CopyTo(indices, 0);
+        return indices;
+    }
+
+    public void SetPaletteIndices(byte[] indices)
+    {
+        indices.CopyTo(data, 0);
+        SetDirty();
+    }
+
     public void Resize(int width, int height, int depth)
     {
         byte[] newData = new byte[width * height * depth];
