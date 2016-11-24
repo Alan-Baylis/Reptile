@@ -22,6 +22,7 @@ public class Tool : MonoBehaviour
     int ny;
     int nz;
 
+    bool badPlane;
     Plane plane;
 
     Dictionary<int, byte> edits = new Dictionary<int, byte>();
@@ -31,15 +32,18 @@ public class Tool : MonoBehaviour
         bool toolHeld = Edit.use.bindUseTool.IsHeld() || Edit.use.bindUseToolAlt.IsHeld();
         bool toolAlt = Edit.use.bindUseToolAlt.IsHeld();
 
+        bool planeLock = Edit.use.bindPlaneLock.IsHeld();
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (toolHeld && !editing)
         {
             editing = true;
             PreviewChunk.use.chunk.SetPaletteIndices(GetChunk().GetPaletteIndices());
+            badPlane = true;
         }
 
-        if (!toolHeld)
+        if (!planeLock || badPlane)
         {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 1000f, mask))
@@ -73,6 +77,7 @@ public class Tool : MonoBehaviour
                 cursor.forward = n;
 
                 plane = new Plane(n, p);
+                badPlane = false;
             }
             else
             {
@@ -80,12 +85,9 @@ public class Tool : MonoBehaviour
             }
         }else
         {
-            cursor.gameObject.SetActive(false);
-
             float dist;
             if (plane.Raycast(ray, out dist))
             {
-
                 Vector3 p = ray.GetPoint(dist);
                 Vector3 n = plane.normal;
 
@@ -111,6 +113,12 @@ public class Tool : MonoBehaviour
 
                 cursor.position = p;
                 cursor.forward = n;
+                
+                cursor.gameObject.SetActive(!IsOutOfBounds(px+nx, py+ny, pz+nz));
+            }
+            else
+            {
+                cursor.gameObject.SetActive(false);
             }
         }
         if (toolHeld)

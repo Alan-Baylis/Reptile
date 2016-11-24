@@ -1044,6 +1044,16 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 1
+  bindPlaneLock:
+    name: Plane Lock
+    key: 120
+    btn: -1
+    axis: 
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 0
 --- !u!114 &1114957955
 MonoBehaviour:
   m_ObjectHideFlags: 0

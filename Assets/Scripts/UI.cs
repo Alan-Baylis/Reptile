@@ -402,7 +402,8 @@ public class UI : MonoBehaviour
             Edit.use.bindToolPlace,
             Edit.use.bindToolPaint,
             Edit.use.bindUseTool,
-            Edit.use.bindUseToolAlt
+            Edit.use.bindUseToolAlt,
+            Edit.use.bindPlaneLock
         };
 
         GUILayout.BeginArea(new Rect(0f, 25f, Screen.width, Screen.height - 25f));

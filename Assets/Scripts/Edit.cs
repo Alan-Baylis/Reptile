@@ -32,6 +32,8 @@ public class Edit : MonoBehaviour
 
     public Binding bindUseTool;
     public Binding bindUseToolAlt;
+
+    public Binding bindPlaneLock;
     
     public static int width;
     public static int height;
