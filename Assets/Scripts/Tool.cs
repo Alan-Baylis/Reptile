@@ -123,17 +123,17 @@ public class Tool : MonoBehaviour
         }
         if (toolHeld)
         {
-            if (Edit.use.tool == Edit.Tool.Place && !toolAlt && !IsOutOfBounds(px + nx, py + ny, pz + nz) && IsEmpty(px + nx, py + ny, pz +nz))
+            if (Edit.use.tool == Edit.Tool.Place && !toolAlt)
             {
-                Paint(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex());
+                Paint(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Empty);
             }
-            if (Edit.use.tool == Edit.Tool.Place && toolAlt && !IsOutOfBounds(px, py, pz) && !IsEmpty(px, py, pz))
+            if (Edit.use.tool == Edit.Tool.Place && toolAlt)
             {
-                Paint(px, py, pz, 0);
+                Paint(px, py, pz, 0, PaintMode.Filled);
             }
-            if (Edit.use.tool == Edit.Tool.Paint && !IsOutOfBounds(px, py, pz) && !IsEmpty(px, py, pz))
+            if (Edit.use.tool == Edit.Tool.Paint)
             {
-                Paint(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex());
+                Paint(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Filled);
             }
         }
         if (editing && !toolHeld)
@@ -165,10 +165,35 @@ public class Tool : MonoBehaviour
         return GetChunk().GetPaletteIndexAt(x, y, z) == 0;
     }
 
-    void Paint(int x, int y, int z, byte color)
+    enum PaintMode
     {
-        PreviewChunk.use.chunk.SetPaletteIndexAt(x, y, z, color);
-        edits[ToIndex(x, y, z)] = color;
+        Filled,
+        Empty,
+        Any
+    }
+
+    void Paint(int x, int y, int z, byte color, PaintMode mode)
+    {
+        Edit.Brush brush = Edit.use.brush;
+        int size = Edit.use.brushSize;
+
+        for (int px = x - (size - 1); px <= x + (size - 1); px ++)
+        {
+            for (int py = y - (size - 1); py <= y + (size - 1); py++)
+            {
+                for (int pz = z - (size - 1); pz <= z + (size - 1); pz++)
+                {
+                    if (IsOutOfBounds(px, py, pz)) continue;
+                    if (mode == PaintMode.Filled && IsEmpty(px, py, pz)) continue;
+                    if (mode == PaintMode.Empty && !IsEmpty(px, py, pz)) continue;
+                    if (brush == Edit.Brush.Diamond && Mathf.Abs(px - x) + Mathf.Abs(py - y) + Mathf.Abs(pz - z) >= size) continue;
+                    if (brush == Edit.Brush.Sphere && Vector3.Distance(new Vector3(x, y, z), new Vector3(px, py, pz)) > size) continue;
+
+                    PreviewChunk.use.chunk.SetPaletteIndexAt(px, py, pz, color);
+                    edits[ToIndex(px, py, pz)] = color;
+                }
+            }
+        }
     }
 
     int ToIndex(int x, int y, int z)

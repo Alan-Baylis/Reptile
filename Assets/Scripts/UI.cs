@@ -135,6 +135,20 @@ public class UI : MonoBehaviour
         // Begin tool section
         GUILayout.BeginVertical("box");
         Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 2, "tool");
+
+        GUILayout.BeginHorizontal();
+        Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 3);
+        GUI.enabled = ed.brushSize > 1;
+        if (GUILayout.Button("-")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize - 1));
+        GUI.enabled = true;
+        int brushSize;
+        if (int.TryParse(GUILayout.TextField(ed.brushSize.ToString()), out brushSize))
+        {
+            if (brushSize != ed.brushSize) actQueue.Enqueue(new ChangeBrushSizeAct(brushSize));
+        }
+        if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
+        GUILayout.EndHorizontal();
+
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         // End tool section
@@ -178,6 +192,8 @@ public class UI : MonoBehaviour
         if (palIndex != paletteIndex) actQueue.Enqueue(new ChangePaletteIndexAct(palIndex));
 
         if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
+
+        if (brush != Edit.use.brush) actQueue.Enqueue(new ChangeBrushAct(brush));
 
         if (layerIndex != ed.tile.GetLayerIndex()) actQueue.Enqueue(new ChangeLayerIndexAct(layerIndex));
 

@@ -6,6 +6,8 @@ public class Edit : MonoBehaviour
     public static Edit use;
     public VTile tile;
     public Tool tool;
+    public Brush brush;
+    public int brushSize = 1;
 
     public VPalette refPalette;
 
@@ -49,6 +51,13 @@ public class Edit : MonoBehaviour
         Move,
         Box,
         Wand
+    }
+
+    public enum Brush
+    {
+        Cube,
+        Sphere,
+        Diamond
     }
 
     void Awake()
