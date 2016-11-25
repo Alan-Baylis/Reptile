@@ -47,6 +47,24 @@ public abstract class VChunk : ISerializable
         return frameIndex;
     }
 
+    public void SetLayerIndex(int index)
+    {
+        layerIndex = index;
+        SetDirty();
+    }
+
+    public void SetAnimationIndex(int index)
+    {
+        animationIndex = index;
+        SetDirty();
+    }
+
+    public void SetFrameIndex(int index)
+    {
+        frameIndex = index;
+        SetDirty();
+    }
+
     public void SetIndices(int layerIndex, int animationIndex, int frameIndex)
     {
         this.layerIndex = layerIndex;

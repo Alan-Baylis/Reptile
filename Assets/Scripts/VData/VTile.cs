@@ -68,17 +68,41 @@ public class VTile : ISerializable
     public int AddLayer(VLayer layer)
     {
         layers.Add(layer);
+        for (int anim = 0; anim < GetAnimationCount(); anim++)
+        {
+            for (int frame = 0; frame < animations[anim].GetFrameCount(); frame++)
+            {
+                chunks.Add(new VTileChunk(layers.Count - 1, anim, frame, width, height, depth));
+            }
+        }
         SetDirty();
         return layers.Count - 1;
     }
 
     public void InsertLayer(int index, VLayer layer)
     {
+        foreach (VChunk chunk in chunks)
+        {
+            if (chunk.GetLayerIndex() >= index) chunk.SetLayerIndex(chunk.GetLayerIndex() + 1);
+        }
         layers.Insert(index, layer);
+        for (int anim = 0; anim < GetAnimationCount(); anim++)
+        {
+            for (int frame = 0; frame < animations[anim].GetFrameCount(); frame++)
+            {
+                chunks.Add(new VTileChunk(index, anim, frame, width, height, depth));
+            }
+        }
+        SetDirty();
     }
 
     public void RemoveLayer(int index)
     {
+        foreach (VChunk chunk in chunks)
+        {
+            if (chunk.GetLayerIndex() > index) chunk.SetLayerIndex(chunk.GetLayerIndex() - 1);
+        }
+        chunks.RemoveAll((c) => c.GetLayerIndex() == index);
         layers.RemoveAt(index);
         SetDirty();
     }
