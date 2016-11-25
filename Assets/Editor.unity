@@ -1081,7 +1081,7 @@ MonoBehaviour:
   cursor: {fileID: 997940874}
   mask:
     serializedVersion: 2
-    m_Bits: 1537
+    m_Bits: 1536
 --- !u!114 &1114957957
 MonoBehaviour:
   m_ObjectHideFlags: 0

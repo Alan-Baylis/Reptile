@@ -92,6 +92,9 @@ MonoBehaviour:
   layerIndex: 0
   animationIndex: 0
   frameIndex: 0
+  transTex: {fileID: 2800000, guid: d202fc41f6151ce4bab93f2f3e72a1dd, type: 3}
+  lineTex: {fileID: 2800000, guid: 0065e85d5721cd7489adc4b2c44bf6d1, type: 3}
+  transLineTex: {fileID: 2800000, guid: 662ebb5209612f64ba197da315868f3c, type: 3}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
