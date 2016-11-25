@@ -57,6 +57,10 @@ public class Tile : MonoBehaviour
 
     void LateUpdate()
     {
+        if (GetTile().IsDirty())
+        {
+            RefreshChunks();
+        }
         if (GetTile().GetPalette().IsDirty())
         {
             RefreshPalette();
