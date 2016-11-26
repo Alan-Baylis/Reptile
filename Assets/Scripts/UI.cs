@@ -204,9 +204,13 @@ public class UI : MonoBehaviour
         GUILayout.EndHorizontal();
         GUILayout.Label("Symmetry");
         GUILayout.BeginHorizontal();
+        GUI.color = Color.Lerp(Color.red, Color.white, 0.5f);
         bool mirrorX = GUILayout.Toggle(Edit.use.mirrorX, "X", "button");
+        GUI.color = Color.Lerp(Color.green, Color.white, 0.5f);
         bool mirrorY = GUILayout.Toggle(Edit.use.mirrorY, "Y", "button");
+        GUI.color = Color.Lerp(Color.blue, Color.white, 0.5f);
         bool mirrorZ = GUILayout.Toggle(Edit.use.mirrorZ, "Z", "button");
+        GUI.color = Color.white;
         if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
             actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
         GUILayout.EndHorizontal();
