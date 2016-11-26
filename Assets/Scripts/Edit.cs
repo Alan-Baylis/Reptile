@@ -8,6 +8,9 @@ public class Edit : MonoBehaviour
     public Tool tool;
     public Brush brush;
     public int brushSize = 1;
+    public bool mirrorX;
+    public bool mirrorY;
+    public bool mirrorZ;
 
     public VPalette refPalette;
 

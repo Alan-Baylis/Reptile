@@ -202,6 +202,14 @@ public class UI : MonoBehaviour
         }
         if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
         GUILayout.EndHorizontal();
+        GUILayout.Label("Symmetry");
+        GUILayout.BeginHorizontal();
+        bool mirrorX = GUILayout.Toggle(Edit.use.mirrorX, "X", "button");
+        bool mirrorY = GUILayout.Toggle(Edit.use.mirrorY, "Y", "button");
+        bool mirrorZ = GUILayout.Toggle(Edit.use.mirrorZ, "Z", "button");
+        if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
+            actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
+        GUILayout.EndHorizontal();
         GUILayout.EndVertical();
     }
 
