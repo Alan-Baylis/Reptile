@@ -215,6 +215,7 @@ public class UI : MonoBehaviour
     void Tile()
     {
         GUILayout.BeginVertical("box");
+
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Load"))
         {
@@ -234,6 +235,14 @@ public class UI : MonoBehaviour
             }
         }
         GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+
+        GUILayout.BeginVertical();
+        GUILayout.Label("Resize");
+        GUILayout.EndVertical();
+
+        GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Width", GUILayout.Width(80));
@@ -261,13 +270,23 @@ public class UI : MonoBehaviour
             if (d != ed.tile.GetDepth()) Edit.depth = d;
         };
         GUILayout.EndHorizontal();
-
         GUI.enabled = Edit.width != ed.tile.GetWidth() || Edit.height != ed.tile.GetHeight() || Edit.depth != ed.tile.GetDepth();
         if (GUILayout.Button("Apply"))
         {
             actQueue.Enqueue(new ResizeTileAct(Edit.width, Edit.height, Edit.depth));
         }
         GUI.enabled = true;
+
+        GUILayout.EndVertical();
+
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Presets");
+        if (GUILayout.Button("8³")) actQueue.Enqueue(new ResizeTileAct(8, 8, 8));
+        if (GUILayout.Button("16³")) actQueue.Enqueue(new ResizeTileAct(16, 16, 16));
+        if (GUILayout.Button("32³")) actQueue.Enqueue(new ResizeTileAct(32, 32, 32));
+        GUILayout.EndHorizontal();
 
         GUILayout.EndVertical();
     }
