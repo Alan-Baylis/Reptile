@@ -38,6 +38,7 @@ public class VTile : ISerializable
         layers.Add(new VLayer());
         animations.Add(new VAnimation());
         chunks.Add(new VTileChunk(0, 0, 0, width, height, depth));
+        SetDirty();
     }
 
     public VTile(IReader r)

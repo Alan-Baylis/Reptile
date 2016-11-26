@@ -239,6 +239,10 @@ public class UI : MonoBehaviour
                 System.IO.File.WriteAllBytes(path, new BinaryWriter(Edit.use.tile).GetOutput());
             }
         }
+        if (GUILayout.Button("New"))
+        {
+            actQueue.Enqueue(new NewTileAct());
+        }
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
