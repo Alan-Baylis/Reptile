@@ -47,16 +47,12 @@ public class Tile : MonoBehaviour
         Refresh();
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (width != Edit.use.tile.GetWidth() || height != Edit.use.tile.GetHeight() || depth != Edit.use.tile.GetDepth())
         {
             Resize(Edit.use.tile.GetWidth(), Edit.use.tile.GetHeight(), Edit.use.tile.GetDepth());
         }
-    }
-
-    void LateUpdate()
-    {
         if (GetTile().IsDirty())
         {
             RefreshChunks();
