@@ -89,29 +89,11 @@ public class UI : MonoBehaviour
         GUILayout.BeginArea(new Rect(0f, 0f, Screen.width, Screen.height));
         GUILayout.BeginVertical();
 
-        // Begin header section
-        GUILayout.BeginHorizontal("box");
-
-        GUI.enabled = Edit.undos.Count > 0;
-        if (GUILayout.Button(Edit.undos.Count > 0 ? "Undo " + Edit.undos.Peek() : "Undo")) actQueue.Enqueue(new UndoAct());
-        GUI.enabled = Edit.redos.Count > 0;
-        if (GUILayout.Button(Edit.redos.Count > 0 ? "Redo " + Edit.redos.Peek() : "Redo")) actQueue.Enqueue(new RedoAct());
-        GUI.enabled = true;
-
-        showKeyBindings = GUILayout.Toggle(showKeyBindings, "Key Bindings", "button");
-
-        GUILayout.FlexibleSpace();
-
-        GUILayout.Label("Version " + version);
-
-        GUILayout.EndHorizontal();
+        Header();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
-        // End header section
 
-        // Begin middle section
         GUILayout.BeginHorizontal();
-
-        // Begin palette section
+        
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
@@ -130,16 +112,12 @@ public class UI : MonoBehaviour
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
-        // End palette section
 
-        // Begin tool section
         Tool();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
-        // End tool section
 
         GUILayout.FlexibleSpace();
 
-        // Begin tile section
         GUILayout.BeginVertical();
 
         Tile();
@@ -149,12 +127,8 @@ public class UI : MonoBehaviour
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
-        // End tile section
 
         GUILayout.EndHorizontal();
-        // End middle section
-
-        // Footer goes here
 
         GUILayout.EndVertical();
 
@@ -186,6 +160,25 @@ public class UI : MonoBehaviour
             }
             GUI.color = Color.white;
         }
+    }
+
+    void Header()
+    {
+        GUILayout.BeginHorizontal("box");
+
+        GUI.enabled = Edit.undos.Count > 0;
+        if (GUILayout.Button(Edit.undos.Count > 0 ? "Undo " + Edit.undos.Peek() : "Undo")) actQueue.Enqueue(new UndoAct());
+        GUI.enabled = Edit.redos.Count > 0;
+        if (GUILayout.Button(Edit.redos.Count > 0 ? "Redo " + Edit.redos.Peek() : "Redo")) actQueue.Enqueue(new RedoAct());
+        GUI.enabled = true;
+
+        showKeyBindings = GUILayout.Toggle(showKeyBindings, "Key Bindings", "button");
+
+        GUILayout.FlexibleSpace();
+
+        GUILayout.Label("Version " + version);
+
+        GUILayout.EndHorizontal();
     }
 
     void Tool()
