@@ -11,6 +11,7 @@ public class Edit : MonoBehaviour
     public bool mirrorX;
     public bool mirrorY;
     public bool mirrorZ;
+    public bool fillDiagonals;
 
     public VPalette refPalette;
 
@@ -31,6 +32,7 @@ public class Edit : MonoBehaviour
 
     public Binding bindToolPlace;
     public Binding bindToolPaint;
+    public Binding bindToolFill;
     public Binding bindToolMove;
     public Binding bindToolBox;
     public Binding bindToolWand;
@@ -51,6 +53,7 @@ public class Edit : MonoBehaviour
     {
         Place,
         Paint,
+        Fill,
         Move,
         Box,
         Wand
@@ -81,6 +84,7 @@ public class Edit : MonoBehaviour
         if (bindRedo.IsPressed() && redos.Count > 0) Do(new RedoAct());
         if (bindToolPlace.IsPressed()) Do(new ChangeToolAct(Tool.Place));
         if (bindToolPaint.IsPressed()) Do(new ChangeToolAct(Tool.Paint));
+        if (bindToolFill.IsPressed()) Do(new ChangeToolAct(Tool.Fill));
         if (bindToolMove.IsPressed()) Do(new ChangeToolAct(Tool.Move));
         if (bindToolBox.IsPressed()) Do(new ChangeToolAct(Tool.Box));
         if (bindToolWand.IsPressed()) Do(new ChangeToolAct(Tool.Wand));

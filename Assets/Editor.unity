@@ -773,6 +773,9 @@ MonoBehaviour:
   layerIndex: -1
   animationIndex: -1
   frameIndex: -1
+  transTex: {fileID: 0}
+  lineTex: {fileID: 0}
+  transLineTex: {fileID: 0}
 --- !u!23 &1053926123
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -886,6 +889,10 @@ MonoBehaviour:
   tool: 0
   brush: 0
   brushSize: 1
+  mirrorX: 0
+  mirrorY: 0
+  mirrorZ: 0
+  fillDiagonals: 0
   bindUndo:
     name: Undo
     key: 122
@@ -996,8 +1003,8 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
-  bindToolMove:
-    name: 
+  bindToolFill:
+    name: Select Fill Tool
     key: 101
     btn: -1
     axis: 
@@ -1006,7 +1013,7 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
-  bindToolBox:
+  bindToolMove:
     name: 
     key: 114
     btn: -1
@@ -1016,9 +1023,19 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
-  bindToolWand:
+  bindToolBox:
     name: 
     key: 116
+    btn: -1
+    axis: 
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 0
+  bindToolWand:
+    name: 
+    key: 121
     btn: -1
     axis: 
     negateAxis: 0

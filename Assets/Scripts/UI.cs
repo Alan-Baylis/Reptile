@@ -185,7 +185,7 @@ public class UI : MonoBehaviour
     {
         GUILayout.BeginVertical("box");
         GUILayout.Label("Tool");
-        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint" }, 1, "tool");
+        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill" }, 1, "tool");
         if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
         GUILayout.Label("Brush Type");
         Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 1);
@@ -214,6 +214,12 @@ public class UI : MonoBehaviour
         if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
             actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
         GUILayout.EndHorizontal();
+        if (tool == Edit.Tool.Fill)
+        {
+            GUILayout.Label("Fill Options");
+            bool fillDiagonals = GUILayout.Toggle(Edit.use.fillDiagonals, "Diagonals", "button");
+            if (fillDiagonals != Edit.use.fillDiagonals) actQueue.Enqueue(new ChangeFillDiagonalsAct(fillDiagonals));
+        }
         GUILayout.EndVertical();
     }
 
@@ -449,6 +455,7 @@ public class UI : MonoBehaviour
             Edit.use.bindLightRotate,
             Edit.use.bindToolPlace,
             Edit.use.bindToolPaint,
+            Edit.use.bindToolFill,
             Edit.use.bindUseTool,
             Edit.use.bindUseToolAlt,
             Edit.use.bindPlaneLock

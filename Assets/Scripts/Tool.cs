@@ -123,17 +123,23 @@ public class Tool : MonoBehaviour
         }
         if (toolHeld)
         {
-            if (Edit.use.tool == Edit.Tool.Place && !toolAlt)
+            if (Edit.use.tool == Edit.Tool.Place)
             {
-                Paint(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Empty);
-            }
-            if (Edit.use.tool == Edit.Tool.Place && toolAlt)
-            {
-                Paint(px, py, pz, 0, PaintMode.Filled);
+                if (toolAlt)
+                    Paint(px, py, pz, 0, PaintMode.Filled);
+                else
+                    Paint(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Empty);
             }
             if (Edit.use.tool == Edit.Tool.Paint)
             {
                 Paint(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Filled);
+            }
+            if (Edit.use.tool == Edit.Tool.Fill)
+            {
+                if (toolAlt)
+                    FloodFill(px, py, pz, 0, PaintMode.Filled);
+                else
+                    FloodFill(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Filled);
             }
         }
         if (editing && !toolHeld)
@@ -160,9 +166,14 @@ public class Tool : MonoBehaviour
         return Edit.use.tile.GetChunk(Edit.use.tile.GetLayerIndex(), Edit.use.tile.GetAnimationIndex(), Edit.use.tile.GetFrameIndex());
     }
 
+    bool IsColor(int x, int y, int z, int index)
+    {
+        return GetChunk().GetPaletteIndexAt(x, y, z) == index;
+    }
+
     bool IsEmpty(int x, int y, int z)
     {
-        return GetChunk().GetPaletteIndexAt(x, y, z) == 0;
+        return IsColor(x, y, z, 0);
     }
 
     enum PaintMode
@@ -194,6 +205,70 @@ public class Tool : MonoBehaviour
             DoPaint(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode, brush, size);
     }
 
+    void FloodFill(int x, int y, int z, byte color, PaintMode mode)
+    {
+        DoFloodFill(x, y, z, color, mode);
+        if (Edit.use.mirrorX)
+            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, y, z, color, mode);
+        if (Edit.use.mirrorY)
+            DoFloodFill(x, Edit.use.tile.GetHeight() - 1 - y, z, color, mode);
+        if (Edit.use.mirrorZ)
+            DoFloodFill(x, y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
+        if (Edit.use.mirrorX && Edit.use.mirrorY)
+            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, z, color, mode);
+        if (Edit.use.mirrorY && Edit.use.mirrorZ)
+            DoFloodFill(x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
+        if (Edit.use.mirrorX && Edit.use.mirrorZ)
+            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
+        if (Edit.use.mirrorX && Edit.use.mirrorY && Edit.use.mirrorZ)
+            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
+    }
+
+    List<int> GetFillNeighbors(int x, int y, int z, byte color)
+    {
+        List<int> neighbors = new List<int>();
+        for (int px = -1; px <= 1; px ++)
+        {
+            for (int py = -1; py <= 1; py ++)
+            {
+                for (int pz = -1; pz <= 1; pz ++)
+                {
+                    if (IsOutOfBounds(x + px, y + py, z + pz) || !IsColor(x + px, y + py, z + pz, color)) continue;
+                    int dist = Mathf.Abs(px) + Mathf.Abs(py) + Mathf.Abs(pz);
+                    if (dist == 0) continue;
+                    if (dist > 1 && !Edit.use.fillDiagonals) continue;
+                    neighbors.Add(ToIndex(x + px, y + py, z + pz));
+                }
+            }
+        }
+        return neighbors;
+    }
+
+    void DoFloodFill(int x, int y, int z, byte color, PaintMode mode)
+    {
+        if (IsOutOfBounds(x, y, z)) return;
+        byte c = GetChunk().GetPaletteIndexAt(x, y, z);
+        Queue<int> open = new Queue<int>();
+        HashSet<int> closed = new HashSet<int>();
+        open.Enqueue(ToIndex(x, y, z));
+        while (open.Count > 0)
+        {
+            int index = open.Dequeue();
+            closed.Add(index);
+
+            int px, py, pz;
+            FromIndex(index, out px, out py, out pz);
+
+            PreviewChunk.use.chunk.SetPaletteIndexAt(px, py, pz, color);
+            edits[index] = color;
+
+            foreach (int n in GetFillNeighbors(px, py, pz, c))
+            {
+                if (!closed.Contains(n)) open.Enqueue(n);
+            }
+        }
+    }
+
     void DoPaint(int x, int y, int z, byte color, PaintMode mode, Edit.Brush brush, int size)
     {
         for (int px = x - (size - 1); px <= x + (size - 1); px++)
@@ -219,6 +294,15 @@ public class Tool : MonoBehaviour
     {
         VTileChunk c = GetChunk();
         return z * c.GetWidth() * c.GetHeight() + y * c.GetWidth() + x;
+    }
+
+    void FromIndex(int index, out int x, out int y, out int z)
+    {
+        VTileChunk c = GetChunk();
+        z = index / (c.GetWidth() * c.GetHeight());
+        index -= (z * c.GetWidth() * c.GetHeight());
+        y = index / c.GetWidth();
+        x = index % c.GetWidth();
     }
 
     bool IsOutOfBounds(int x, int y, int z)
