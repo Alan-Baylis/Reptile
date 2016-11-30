@@ -15,14 +15,14 @@ public class RemoveLayerAct : Act
 
     public override void Do()
     {
-        data = new BinaryWriter(Edit.use.tile.GetLayer(index)).GetOutput();
+        data = new BinaryWriter(Edit.use.tile).GetOutput();
         name = Edit.use.tile.GetLayer(index).GetName();
         Edit.use.tile.RemoveLayer(index);
     }
 
     public override void Undo()
     {
-        Edit.use.tile.InsertLayer(index, new VLayer(new BinaryReader(data)));
+        Edit.use.tile.Read(new BinaryReader(data));
     }
 
     public override bool IsNoOp()
