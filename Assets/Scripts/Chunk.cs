@@ -172,7 +172,7 @@ public class Chunk : MonoBehaviour
             if (mesh.subMeshCount > 1)
                 mr.sharedMaterials = new[] { tile.mat0, tile.mat1 };
             else
-                mr.sharedMaterial = tile.mat0;
+                mr.sharedMaterials = new[] { tile.mat0 };
             foreach (Material mat in mr.materials)
             {
                 mat.SetTexture("_Pattern", (layerTrans) ? ((layerLine) ? transLineTex : transTex) : ((layerLine) ? lineTex : null));
