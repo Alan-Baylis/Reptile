@@ -974,6 +974,16 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
+  bindCamOrtho:
+    name: Toggle Orthographic Camera
+    key: 99
+    btn: -1
+    axis: 
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 0
   bindLightRotate:
     name: Rotate Light
     key: 0

@@ -125,6 +125,9 @@ public class UI : MonoBehaviour
 
         int layerIndex = Layers();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
+        
+        Camera();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
 
         GUILayout.EndVertical();
 
@@ -231,6 +234,39 @@ public class UI : MonoBehaviour
             if (fillDiagonals != Edit.use.fillDiagonals) actQueue.Enqueue(new ChangeFillDiagonalsAct(fillDiagonals));
         }
         GUILayout.EndVertical();
+    }
+
+    void Camera()
+    {
+        GUILayout.BeginVertical("box");
+        GUILayout.Label("Camera");
+        bool camOrtho = !GUILayout.Toggle(!Cam.use.cam.orthographic, "Perspective", "button");
+        if (camOrtho != Cam.use.cam.orthographic) actQueue.Enqueue(new ChangeCamOrthoAct(camOrtho));
+        camOrtho = GUILayout.Toggle(Cam.use.cam.orthographic, "Orthographic", "button");
+        if (camOrtho != Cam.use.cam.orthographic) actQueue.Enqueue(new ChangeCamOrthoAct(camOrtho));
+        GUILayout.Label("Options");
+        bool camSnap = GUILayout.Toggle(Edit.use.camSnap, "Angle Snap", "button");
+        if (camSnap != Edit.use.camSnap) actQueue.Enqueue(new ChangeCamSnapAct(camSnap));
+        GUILayout.Label("Bookmarks");
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("+X")) SetCamBookmark(new Vector3(0f, 90f, 0f));
+        if (GUILayout.Button("+Y")) SetCamBookmark(new Vector3(270f, 0f, 0f));
+        if (GUILayout.Button("+Z")) SetCamBookmark(new Vector3(0f, 0f, 0f));
+        if (GUILayout.Button("-X")) SetCamBookmark(new Vector3(0f, 270f, 0f));
+        if (GUILayout.Button("-Y")) SetCamBookmark(new Vector3(90, 0f, 0f));
+        if (GUILayout.Button("-Z")) SetCamBookmark(new Vector3(0f, 180f, 0f));
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Isometric")) SetCamBookmark(new Vector3(35.2643897f, 45f, 0f));
+        if (GUILayout.Button("Top-Down")) SetCamBookmark(new Vector3(45f, 0f, 0f));
+        GUILayout.EndHorizontal();
+        GUILayout.EndVertical();
+    }
+
+    void SetCamBookmark(Vector3 angles)
+    {
+        Cam.use.angles = angles;
+        Cam.use.Focus();
     }
 
     void Tile()
@@ -462,6 +498,7 @@ public class UI : MonoBehaviour
             Edit.use.bindCamZoomIn,
             Edit.use.bindCamZoomOut,
             Edit.use.bindCamFocus,
+            Edit.use.bindCamOrtho,
             Edit.use.bindLightRotate,
             Edit.use.bindToolPlace,
             Edit.use.bindToolPaint,

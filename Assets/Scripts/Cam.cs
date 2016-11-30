@@ -3,16 +3,28 @@ using System.Collections;
 
 public class Cam : MonoBehaviour
 {
+    public static Cam use;
+
     public float rotSpeed;
     public float panSpeed;
     public float zoomSpeed;
-    Vector3 focus = Vector3.one * 3.5f;
-    float dist = 16f;
-    Vector3 angles = Vector3.zero;
 
-    void Start()
+    [HideInInspector]
+    public Vector3 focus = Vector3.one * 3.5f;
+
+    [HideInInspector]
+    public float dist = 16f;
+
+    [HideInInspector]
+    public Vector3 angles = Vector3.zero;
+
+    [HideInInspector]
+    public Camera cam;
+
+    void Awake()
     {
-
+        use = this;
+        cam = GetComponent<Camera>();
     }
     
     void Update()
@@ -47,8 +59,37 @@ public class Cam : MonoBehaviour
             dist = Mathf.Max(Edit.use.tile.GetWidth(), Edit.use.tile.GetHeight(), Edit.use.tile.GetDepth()) * 2f;
         }
 
+        RecalculateOrthoSize();
+
         transform.position = focus;
-        transform.eulerAngles = angles;
+        if (Edit.use.camSnap) transform.eulerAngles = new Vector3(Snap(angles.x), Snap(angles.y), Snap(angles.z));
+        else transform.eulerAngles = angles;
+
+        if (cam.orthographic) transform.position -= transform.forward * 500f;
         transform.position -= transform.forward * dist;
+
+        if (Edit.use.bindCamOrtho.IsPressed()) Edit.Do(new ChangeCamOrthoAct(!cam.orthographic));
+    }
+
+    public void Focus()
+    {
+        focus = new Vector3(Edit.use.tile.GetWidth(), Edit.use.tile.GetHeight(), Edit.use.tile.GetDepth()) * 0.5f - Vector3.one * 0.5f;
+        dist = Mathf.Max(Edit.use.tile.GetWidth(), Edit.use.tile.GetHeight(), Edit.use.tile.GetDepth()) * 2f;
+    }
+
+    float Snap(float angle)
+    {
+        return Mathf.Round(angle / 15f) * 15f;
+    }
+
+    public void RecalculateOrthoSize()
+    {
+        bool ortho = cam.orthographic;
+        cam.orthographic = false;
+        Vector3 top = cam.ViewportToWorldPoint(new Vector3(0.5f, 1f, dist));
+        Vector3 bottom = cam.ViewportToWorldPoint(new Vector3(0.5f, 0f, dist));
+        float height = Vector3.Distance(top, bottom);
+        cam.orthographicSize = height / 2f;
+        cam.orthographic = ortho;
     }
 }

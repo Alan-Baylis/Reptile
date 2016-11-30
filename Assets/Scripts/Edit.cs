@@ -13,6 +13,7 @@ public class Edit : MonoBehaviour
     public bool mirrorZ;
     public bool planeLock;
     public bool fillDiagonals;
+    public bool camSnap;
 
     public VPalette refPalette;
 
@@ -28,6 +29,7 @@ public class Edit : MonoBehaviour
     public Binding bindCamZoomIn;
     public Binding bindCamZoomOut;
     public Binding bindCamFocus;
+    public Binding bindCamOrtho;
 
     public Binding bindLightRotate;
 
