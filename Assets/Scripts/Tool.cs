@@ -32,9 +32,12 @@ public class Tool : MonoBehaviour
         bool toolHeld = Edit.use.bindUseTool.IsHeld() || Edit.use.bindUseToolAlt.IsHeld();
         bool toolAlt = Edit.use.bindUseToolAlt.IsHeld();
 
-        bool planeLock = Edit.use.bindPlaneLock.IsHeld();
+        bool planeLock = Edit.use.planeLock;
+        if (Edit.use.bindPlaneLock.IsHeld()) planeLock = !planeLock;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (!editing) badPlane = true;
 
         if (toolHeld && !editing)
         {

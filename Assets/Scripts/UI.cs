@@ -214,9 +214,19 @@ public class UI : MonoBehaviour
         if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
             actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
         GUILayout.EndHorizontal();
+        GUILayout.Label("Tool Options");
+        if (Edit.use.bindPlaneLock.IsHeld())
+        {
+            bool planeLock = !GUILayout.Toggle(!Edit.use.planeLock, "Plane Lock", "button");
+            if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
+        }
+        else
+        {
+            bool planeLock = GUILayout.Toggle(Edit.use.planeLock, "Plane Lock", "button");
+            if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
+        }
         if (tool == Edit.Tool.Fill)
         {
-            GUILayout.Label("Fill Options");
             bool fillDiagonals = GUILayout.Toggle(Edit.use.fillDiagonals, "Diagonals", "button");
             if (fillDiagonals != Edit.use.fillDiagonals) actQueue.Enqueue(new ChangeFillDiagonalsAct(fillDiagonals));
         }

@@ -892,6 +892,7 @@ MonoBehaviour:
   mirrorX: 0
   mirrorY: 0
   mirrorZ: 0
+  planeLock: 0
   fillDiagonals: 0
   bindUndo:
     name: Undo
@@ -1064,7 +1065,7 @@ MonoBehaviour:
     alt: 0
     blockedByUI: 1
   bindPlaneLock:
-    name: Plane Lock
+    name: Invert Plane Lock
     key: 120
     btn: -1
     axis: 

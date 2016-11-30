@@ -11,6 +11,7 @@ public class Edit : MonoBehaviour
     public bool mirrorX;
     public bool mirrorY;
     public bool mirrorZ;
+    public bool planeLock;
     public bool fillDiagonals;
 
     public VPalette refPalette;
