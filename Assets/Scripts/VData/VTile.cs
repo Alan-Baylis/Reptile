@@ -99,12 +99,12 @@ public class VTile : ISerializable
 
     public void RemoveLayer(int index)
     {
+        chunks.RemoveAll((c) => c.GetLayerIndex() == index);
+        layers.RemoveAt(index);
         foreach (VChunk chunk in chunks)
         {
             if (chunk.GetLayerIndex() > index) chunk.SetLayerIndex(chunk.GetLayerIndex() - 1);
         }
-        chunks.RemoveAll((c) => c.GetLayerIndex() == index);
-        layers.RemoveAt(index);
         SetDirty();
     }
     
