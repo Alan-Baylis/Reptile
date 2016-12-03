@@ -37,8 +37,6 @@ public class Tool : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (!editing) badPlane = true;
-
         if (toolHeld && !editing)
         {
             editing = true;
@@ -46,7 +44,7 @@ public class Tool : MonoBehaviour
             badPlane = true;
         }
 
-        if (!planeLock || badPlane)
+        if (!planeLock || badPlane || !editing)
         {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 1000f, mask))
