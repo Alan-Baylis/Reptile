@@ -42,9 +42,21 @@ public class UI : MonoBehaviour
     List<Rect> boxRects = new List<Rect>();
     public bool repaint;
 
+    List<string> errMsgs = new List<string>();
+
     void Awake()
     {
         use = this;
+        Application.logMessageReceived += (string cond, string stack, LogType type) =>
+        {
+            string msg = "";
+            msg += cond + "\n";
+            msg += "<size=12>" + stack + "</size>";
+            if (type == LogType.Log) msg = "<color=cyan>" + msg + "</color>";
+            else if (type == LogType.Warning) msg = "<color=orange>" + msg + "</color>";
+            else msg = "<color=red>" + msg + "</color>";
+            errMsgs.Add(msg);
+        };
     }
 
     void Start()
@@ -126,6 +138,7 @@ public class UI : MonoBehaviour
         GUILayout.BeginVertical();
         GUILayout.BeginHorizontal();
         Tool();
+        Console();
         GUILayout.FlexibleSpace();
         KeyBindings();
         GUILayout.FlexibleSpace();
@@ -225,6 +238,16 @@ public class UI : MonoBehaviour
         }
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
+    }
+
+    void Console()
+    {
+        GUILayout.BeginVertical();
+        foreach (string msg in errMsgs)
+        {
+            GUILayout.TextField(msg);
+        }
+        GUILayout.EndVertical();
     }
 
     void Camera()
