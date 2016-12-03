@@ -976,7 +976,7 @@ MonoBehaviour:
     alt: 0
     blockedByUI: 0
   bindCamOrtho:
-    name: Toggle Orthographic Camera
+    name: Toggle Camera Mode
     key: 99
     btn: -1
     axis: 
