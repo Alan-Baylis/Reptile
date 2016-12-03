@@ -214,6 +214,7 @@ public class Tool : MonoBehaviour
 
     void Paint(int x, int y, int z, byte color, PaintMode mode)
     {
+        if (IsOutOfBounds(x, y, z)) return;
         Edit.Brush brush = Edit.use.brush;
         int size = Edit.use.brushSize;
         foreach (int index in GetSymmetryPoints(x, y, z))
@@ -226,6 +227,7 @@ public class Tool : MonoBehaviour
 
     void FloodFill(int x, int y, int z, byte color, PaintMode mode)
     {
+        if (IsOutOfBounds(x, y, z)) return;
         foreach (int index in GetSymmetryPoints(x, y, z))
         {
             int px, py, pz;
@@ -236,6 +238,7 @@ public class Tool : MonoBehaviour
 
     void BoxFill(int sx, int sy, int sz, int dx, int dy, int dz, byte color, PaintMode mode)
     {
+        if (IsOutOfBounds(sx, sy, sz) || IsOutOfBounds(dx, dy, dz)) return;
         List<int> spts = GetSymmetryPoints(sx, sy, sz);
         List<int> dpts = GetSymmetryPoints(dx, dy, dz);
         for (int i = 0; i < spts.Count; i ++)
@@ -292,14 +295,18 @@ public class Tool : MonoBehaviour
     void DoFloodFill(int x, int y, int z, byte color, PaintMode mode)
     {
         if (IsOutOfBounds(x, y, z)) return;
+
         byte c = GetChunk().GetPaletteIndexAt(x, y, z);
+
         Queue<int> open = new Queue<int>();
         HashSet<int> closed = new HashSet<int>();
+
         open.Enqueue(ToIndex(x, y, z));
+        closed.Add(ToIndex(x, y, z));
+
         while (open.Count > 0)
         {
             int index = open.Dequeue();
-            closed.Add(index);
 
             int px, py, pz;
             FromIndex(index, out px, out py, out pz);
@@ -309,7 +316,11 @@ public class Tool : MonoBehaviour
 
             foreach (int n in GetFillNeighbors(px, py, pz, c))
             {
-                if (!closed.Contains(n)) open.Enqueue(n);
+                if (!closed.Contains(n))
+                {
+                    open.Enqueue(n);
+                    closed.Add(n);
+                }
             }
         }
     }
