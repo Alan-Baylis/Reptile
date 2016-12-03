@@ -216,41 +216,22 @@ public class Tool : MonoBehaviour
     {
         Edit.Brush brush = Edit.use.brush;
         int size = Edit.use.brushSize;
-
-        DoPaint(x, y, z, color, mode, brush, size);
-        if (Edit.use.mirrorX)
-            DoPaint(Edit.use.tile.GetWidth() - 1 - x, y, z, color, mode, brush, size);
-        if (Edit.use.mirrorY)
-            DoPaint(x, Edit.use.tile.GetHeight() - 1 - y, z, color, mode, brush, size);
-        if (Edit.use.mirrorZ)
-            DoPaint(x, y, Edit.use.tile.GetDepth() - 1 - z, color, mode, brush, size);
-        if (Edit.use.mirrorX && Edit.use.mirrorY)
-            DoPaint(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, z, color, mode, brush, size);
-        if (Edit.use.mirrorY && Edit.use.mirrorZ)
-            DoPaint(x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode, brush, size);
-        if (Edit.use.mirrorX && Edit.use.mirrorZ)
-            DoPaint(Edit.use.tile.GetWidth() - 1 - x, y, Edit.use.tile.GetDepth() - 1 - z, color, mode, brush, size);
-        if (Edit.use.mirrorX && Edit.use.mirrorY && Edit.use.mirrorZ)
-            DoPaint(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode, brush, size);
+        foreach (int index in GetSymmetryPoints(x, y, z))
+        {
+            int px, py, pz;
+            FromIndex(index, out px, out py, out pz);
+            DoPaint(px, py, pz, color, mode, brush, size);
+        }
     }
 
     void FloodFill(int x, int y, int z, byte color, PaintMode mode)
     {
-        DoFloodFill(x, y, z, color, mode);
-        if (Edit.use.mirrorX)
-            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, y, z, color, mode);
-        if (Edit.use.mirrorY)
-            DoFloodFill(x, Edit.use.tile.GetHeight() - 1 - y, z, color, mode);
-        if (Edit.use.mirrorZ)
-            DoFloodFill(x, y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
-        if (Edit.use.mirrorX && Edit.use.mirrorY)
-            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, z, color, mode);
-        if (Edit.use.mirrorY && Edit.use.mirrorZ)
-            DoFloodFill(x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
-        if (Edit.use.mirrorX && Edit.use.mirrorZ)
-            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
-        if (Edit.use.mirrorX && Edit.use.mirrorY && Edit.use.mirrorZ)
-            DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
+        foreach (int index in GetSymmetryPoints(x, y, z))
+        {
+            int px, py, pz;
+            FromIndex(index, out px, out py, out pz);
+            DoFloodFill(px, py, pz, color, mode);
+        }
     }
 
     void BoxFill(int sx, int sy, int sz, int dx, int dy, int dz, byte color, PaintMode mode)
