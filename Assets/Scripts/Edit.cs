@@ -8,6 +8,12 @@ public class Edit : MonoBehaviour
     public Tool tool;
     public Brush brush;
     public int brushSize = 1;
+    public bool mirrorX;
+    public bool mirrorY;
+    public bool mirrorZ;
+    public bool planeLock;
+    public bool fillDiagonals;
+    public bool camSnap;
 
     public VPalette refPalette;
 
@@ -23,11 +29,13 @@ public class Edit : MonoBehaviour
     public Binding bindCamZoomIn;
     public Binding bindCamZoomOut;
     public Binding bindCamFocus;
+    public Binding bindCamOrtho;
 
     public Binding bindLightRotate;
 
     public Binding bindToolPlace;
     public Binding bindToolPaint;
+    public Binding bindToolFill;
     public Binding bindToolMove;
     public Binding bindToolBox;
     public Binding bindToolWand;
@@ -48,8 +56,9 @@ public class Edit : MonoBehaviour
     {
         Place,
         Paint,
-        Move,
+        Fill,
         Box,
+        Move,
         Wand
     }
 
@@ -78,8 +87,9 @@ public class Edit : MonoBehaviour
         if (bindRedo.IsPressed() && redos.Count > 0) Do(new RedoAct());
         if (bindToolPlace.IsPressed()) Do(new ChangeToolAct(Tool.Place));
         if (bindToolPaint.IsPressed()) Do(new ChangeToolAct(Tool.Paint));
-        if (bindToolMove.IsPressed()) Do(new ChangeToolAct(Tool.Move));
+        if (bindToolFill.IsPressed()) Do(new ChangeToolAct(Tool.Fill));
         if (bindToolBox.IsPressed()) Do(new ChangeToolAct(Tool.Box));
+        if (bindToolMove.IsPressed()) Do(new ChangeToolAct(Tool.Move));
         if (bindToolWand.IsPressed()) Do(new ChangeToolAct(Tool.Wand));
         if (batch.Count > 0 && Time.time > batchTime)
         {

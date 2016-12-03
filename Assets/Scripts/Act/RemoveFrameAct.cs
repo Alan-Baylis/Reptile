@@ -2,22 +2,23 @@
 using System.Collections;
 using System;
 
-public class RemoveLayerAct : Act
+public class RemoveFrameAct : Act
 {
-    int index;
+    int animationIndex;
+    int frameIndex;
     byte[] data;
     string name;
 
-    public RemoveLayerAct(int index)
+    public RemoveFrameAct(int animationIndex, int frameIndex)
     {
-        this.index = index;
+        this.animationIndex = animationIndex;
+        this.frameIndex = frameIndex;
     }
 
     public override void Do()
     {
         data = new BinaryWriter(Edit.use.tile).GetOutput();
-        name = Edit.use.tile.GetLayer(index).GetName();
-        Edit.use.tile.RemoveLayer(index);
+        Edit.use.tile.RemoveFrame(animationIndex, frameIndex);
     }
 
     public override void Undo()
@@ -32,6 +33,6 @@ public class RemoveLayerAct : Act
 
     public override string ToString()
     {
-        return "Remove Layer \"" + name + "\"";
+        return "Remove Animation Frame";
     }
 }

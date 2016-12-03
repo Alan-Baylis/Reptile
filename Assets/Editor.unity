@@ -773,6 +773,9 @@ MonoBehaviour:
   layerIndex: -1
   animationIndex: -1
   frameIndex: -1
+  transTex: {fileID: 0}
+  lineTex: {fileID: 0}
+  transLineTex: {fileID: 0}
 --- !u!23 &1053926123
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -853,12 +856,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03b4c6eedb6a3c949bbfbed5f18e2697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 0.2.0
+  version: 0.3.0
   debug: 0
   skin: {fileID: 11400000, guid: d821d7381e850c64db135d3902716b95, type: 2}
   alphaTex: {fileID: 2800000, guid: 835b58605726f3d4db0e9070cdb3ff83, type: 3}
   blankTex: {fileID: 2800000, guid: e0d9c8dbadeabf04baa320e239488e1d, type: 3}
   svCursorTex: {fileID: 2800000, guid: 7375a588029150a4ba9a66e05107a903, type: 3}
+  repaint: 0
 --- !u!4 &1114957953
 Transform:
   m_ObjectHideFlags: 0
@@ -886,6 +890,12 @@ MonoBehaviour:
   tool: 0
   brush: 0
   brushSize: 1
+  mirrorX: 0
+  mirrorY: 0
+  mirrorZ: 0
+  planeLock: 0
+  fillDiagonals: 0
+  camSnap: 0
   bindUndo:
     name: Undo
     key: 122
@@ -966,6 +976,16 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
+  bindCamOrtho:
+    name: Toggle Camera Mode
+    key: 99
+    btn: -1
+    axis: 
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 0
   bindLightRotate:
     name: Rotate Light
     key: 0
@@ -996,8 +1016,8 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
-  bindToolMove:
-    name: 
+  bindToolFill:
+    name: Select Fill Tool
     key: 101
     btn: -1
     axis: 
@@ -1006,8 +1026,18 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
-  bindToolBox:
+  bindToolMove:
     name: 
+    key: 114
+    btn: -1
+    axis: 
+    negateAxis: 0
+    shift: 0
+    ctrl: 0
+    alt: 0
+    blockedByUI: 0
+  bindToolBox:
+    name: Select Box Tool
     key: 114
     btn: -1
     axis: 
@@ -1018,7 +1048,7 @@ MonoBehaviour:
     blockedByUI: 0
   bindToolWand:
     name: 
-    key: 116
+    key: 121
     btn: -1
     axis: 
     negateAxis: 0
@@ -1047,7 +1077,7 @@ MonoBehaviour:
     alt: 0
     blockedByUI: 1
   bindPlaneLock:
-    name: Plane Lock
+    name: Invert Plane Lock
     key: 120
     btn: -1
     axis: 
@@ -1081,7 +1111,7 @@ MonoBehaviour:
   cursor: {fileID: 997940874}
   mask:
     serializedVersion: 2
-    m_Bits: 1537
+    m_Bits: 1536
 --- !u!114 &1114957957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1370,6 +1400,10 @@ MonoBehaviour:
   rotSpeed: 15
   panSpeed: 0.075
   zoomSpeed: 1
+  focus: {x: 3.5, y: 3.5, z: 3.5}
+  dist: 16
+  angles: {x: 0, y: 0, z: 0}
+  cam: {fileID: 0}
 --- !u!114 &1269009683
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -47,16 +47,16 @@ public class Tile : MonoBehaviour
         Refresh();
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (width != Edit.use.tile.GetWidth() || height != Edit.use.tile.GetHeight() || depth != Edit.use.tile.GetDepth())
         {
             Resize(Edit.use.tile.GetWidth(), Edit.use.tile.GetHeight(), Edit.use.tile.GetDepth());
         }
-    }
-
-    void LateUpdate()
-    {
+        if (GetTile().IsDirty())
+        {
+            RefreshChunks();
+        }
         if (GetTile().GetPalette().IsDirty())
         {
             RefreshPalette();
@@ -93,6 +93,11 @@ public class Tile : MonoBehaviour
             VColor vc = tile.GetPalette().GetColor(i);
             cs0[i] = new Color32(vc.r, vc.g, vc.b, vc.a);
             cs1[i] = new Color32(vc.m, vc.s, vc.e, vc.u);
+        }
+        for (int i = tile.GetPalette().GetCount(); i < 256; i ++)
+        {
+            cs0[i] = new Color32(255, 0, 255, 255);
+            cs1[i] = new Color32(0, 0, 255, 0);
         }
         tex0.SetPixels32(cs0);
         tex0.Apply();

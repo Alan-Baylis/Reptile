@@ -9,6 +9,10 @@ public class Chunk : MonoBehaviour
     public int animationIndex;
     public int frameIndex;
 
+    public Texture2D transTex;
+    public Texture2D lineTex;
+    public Texture2D transLineTex;
+
     Mesh mesh;
 
     protected MeshFilter mf;
@@ -42,25 +46,31 @@ public class Chunk : MonoBehaviour
 
     public VColor GetColor(int x, int y, int z)
     {
+        int index = GetIndex(x, y, z);
+        if (index >= tile.GetTile().GetPalette().GetCount()) return new VColor(255, 0, 255, 255, 0, 0, 255, 0);
         return tile.GetTile().GetPalette().GetColor(GetIndex(x, y, z));
     }
 
     void LateUpdate()
     {
         VTile t = tile.GetTile();
+        VLayer l = t.GetLayer(layerIndex);
+        VAnimation a = t.GetAnimation(animationIndex);
 
-        if (GetChunk().IsDirty() || t.GetPalette().IsDirty()) Refresh();
-        bool visible = t.GetLayer(layerIndex).GetVisible();
-        if (Tool.editing && layerIndex == t.GetLayerIndex() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex())
-        {
-            visible = false;
-        }
+        bool active = layerIndex == t.GetLayerIndex() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex();
 
-        mr.enabled = visible;
+        if (GetChunk().IsDirty() || t.GetPalette().IsDirty() || l.IsDirty() || a.IsDirty()) Refresh();
+        bool visible = l.GetVisible() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex();
+        gameObject.layer = (visible && (active || (!l.GetOutline() && !l.GetTransparent()))) ? 10 : 0;
+        if (Tool.editing && active) visible = false;
+        if (mr) mr.enabled = visible;
     }
 
     public void Refresh()
     {
+        bool layerTrans = (layerIndex >= 0) ? tile.GetTile().GetLayer(layerIndex).GetTransparent() : false;
+        bool layerLine = (layerIndex >= 0) ? tile.GetTile().GetLayer(layerIndex).GetOutline() : false;
+
         if (!mesh) mesh = new Mesh();
         mesh.Clear();
 
@@ -76,7 +86,7 @@ public class Chunk : MonoBehaviour
                     if (GetColor(x, y, z).a == 0) continue;
                     Vector3 p = new Vector3(x, y, z);
 
-                    bool useSubMesh = c.a < 255;
+                    bool useSubMesh = c.a < 255 || layerTrans || layerLine;
 
                     if (x == 0 || (GetColor(x - 1, y, z).a < 255 && GetColor(x - 1, y, z) != c))
                     {
@@ -164,7 +174,11 @@ public class Chunk : MonoBehaviour
             if (mesh.subMeshCount > 1)
                 mr.sharedMaterials = new[] { tile.mat0, tile.mat1 };
             else
-                mr.sharedMaterial = tile.mat0;
+                mr.sharedMaterials = new[] { tile.mat0 };
+            foreach (Material mat in mr.materials)
+            {
+                mat.SetTexture("_Pattern", (layerTrans) ? ((layerLine) ? transLineTex : transTex) : ((layerLine) ? lineTex : null));
+            }
         }
     }
 
