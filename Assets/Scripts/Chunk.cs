@@ -53,12 +53,12 @@ public class Chunk : MonoBehaviour
     {
         VTile t = tile.GetTile();
         VLayer l = t.GetLayer(layerIndex);
+        VAnimation a = t.GetAnimation(animationIndex);
 
         bool active = layerIndex == t.GetLayerIndex() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex();
 
-        if (GetChunk().IsDirty() || t.GetPalette().IsDirty() || l.IsDirty()) Refresh();
-        bool visible = l.GetVisible();
-        //if (mc) mc.enabled = visible && !l.GetOutline() && !l.GetTransparent();
+        if (GetChunk().IsDirty() || t.GetPalette().IsDirty() || l.IsDirty() || a.IsDirty()) Refresh();
+        bool visible = l.GetVisible() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex();
         gameObject.layer = (visible && (active || (!l.GetOutline() && !l.GetTransparent()))) ? 10 : 0;
         if (Tool.editing && active) visible = false;
         if (mr) mr.enabled = visible;

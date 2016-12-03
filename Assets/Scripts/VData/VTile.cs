@@ -118,9 +118,98 @@ public class VTile : ISerializable
         return animations[index];
     }
 
+    public int AddAnimation(VAnimation anim)
+    {
+        animations.Add(anim);
+        for (int layer = 0; layer < GetLayerCount(); layer ++)
+        {
+            for (int frame = 0; frame < anim.GetFrameCount(); frame ++)
+            {
+                chunks.Add(new VTileChunk(layer, animations.Count - 1, frame, width, height, depth));
+            }
+        }
+        SetDirty();
+        return animations.Count - 1;
+    }
+
+    public void InsertAnimation(int index, VAnimation anim)
+    {
+        foreach (VChunk chunk in chunks)
+        {
+            if (chunk.GetAnimationIndex() >= index) chunk.SetAnimationIndex(chunk.GetAnimationIndex() + 1);
+        }
+        animations.Insert(index, anim);
+        for (int layer = 0; layer < GetLayerCount(); layer++)
+        {
+            for (int frame = 0; frame < anim.GetFrameCount(); frame++)
+            {
+                chunks.Add(new VTileChunk(layer, index, frame, width, height, depth));
+            }
+        }
+        SetDirty();
+    }
+
+    public void RemoveAnimation(int index)
+    {
+        chunks.RemoveAll((c) => c.GetAnimationIndex() == index);
+        animations.RemoveAt(index);
+        foreach (VChunk chunk in chunks)
+        {
+            if (chunk.GetAnimationIndex() > index) chunk.SetAnimationIndex(chunk.GetAnimationIndex() - 1);
+        }
+        SetDirty();
+    }
+
     public int GetAnimationCount()
     {
         return animations.Count;
+    }
+
+    public VFrame GetFrame(int animationIndex, int frameIndex)
+    {
+        return animations[animationIndex].GetFrame(frameIndex);
+    }
+
+    public int AddFrame(int animationIndex, VFrame frame)
+    {
+        VAnimation anim = animations[animationIndex];
+        anim.AddFrame(frame);
+        for (int layer = 0; layer < GetLayerCount(); layer ++)
+        {
+            chunks.Add(new VTileChunk(layer, animationIndex, anim.GetFrameCount() - 1, width, height, depth));
+        }
+        SetDirty();
+        return anim.GetFrameCount() - 1;
+    }
+
+    public void InsertFrame(int animationIndex, int frameIndex, VFrame frame)
+    {
+        foreach (VChunk chunk in chunks)
+        {
+            if (chunk.GetAnimationIndex() == animationIndex && chunk.GetFrameIndex() >= frameIndex) chunk.SetFrameIndex(chunk.GetFrameIndex() + 1);
+            animations[animationIndex].InsertFrame(frameIndex, frame);
+            for (int layer = 0; layer < GetLayerCount(); layer ++)
+            {
+                chunks.Add(new VTileChunk(layer, animationIndex, frameIndex, width, height, depth));
+            }
+        }
+        SetDirty();
+    }
+
+    public void RemoveFrame(int animationIndex, int frameIndex)
+    {
+        chunks.RemoveAll((c) => c.GetAnimationIndex() == animationIndex && c.GetFrameIndex() == frameIndex);
+        animations[animationIndex].RemoveFrame(frameIndex);
+        foreach (VChunk chunk in chunks)
+        {
+            if (chunk.GetAnimationIndex() == animationIndex && chunk.GetFrameIndex() > frameIndex) chunk.SetFrameIndex(chunk.GetFrameIndex() - 1);
+        }
+        SetDirty();
+    }
+
+    public int GetFrameCount(int animationIndex)
+    {
+        return animations[animationIndex].GetFrameCount();
     }
 
     public VPalette GetPalette()

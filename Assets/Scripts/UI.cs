@@ -24,6 +24,10 @@ public class UI : MonoBehaviour
     bool showAdvancedColor;
     bool showKeyBindings;
 
+    bool playAnimation;
+    float animationTime;
+    bool loopAnimation = true;
+
     Texture2D hTex;
     Texture2D svTex;
     Texture2D rTex;
@@ -67,6 +71,29 @@ public class UI : MonoBehaviour
 
     void Update()
     {
+        VAnimation anim = ed.tile.GetAnimation(ed.tile.GetAnimationIndex());
+        if (playAnimation)
+        {
+            animationTime += Time.deltaTime;
+            if (loopAnimation)
+            {
+                animationTime %= anim.GetDuration();
+            } else if (animationTime >= anim.GetDuration())
+            {
+                playAnimation = false;
+            }
+        }
+        if (playAnimation) {
+            float frameTime = 0f;
+            for (int i = 0; i < anim.GetFrameCount(); i++)
+            {
+                if (i != ed.tile.GetFrameIndex() && animationTime >= frameTime && animationTime < frameTime + anim.GetFrame(i).GetDuration())
+                {
+                    actQueue.Enqueue(new ChangeFrameIndexAct(i));
+                }
+                frameTime += anim.GetFrame(i).GetDuration();
+            }
+        }
         while (actQueue.Count > 0) Edit.Do(actQueue.Dequeue());
     }
 
@@ -96,14 +123,21 @@ public class UI : MonoBehaviour
         RefPalette();
         ColorPicker();
         GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.BeginHorizontal();
         Tool();
         GUILayout.FlexibleSpace();
         KeyBindings();
         GUILayout.FlexibleSpace();
         Camera();
+        GUILayout.EndHorizontal();
+        GUILayout.FlexibleSpace();
+        Frames();
+        GUILayout.EndVertical();
         GUILayout.BeginVertical();
         Tile();
         Layers();
+        Animations();
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
         GUILayout.EndVertical();
@@ -226,6 +260,46 @@ public class UI : MonoBehaviour
         Cam.use.angles = angles;
         Cam.use.Focus();
     }
+    
+    void Frames()
+    {
+        int index = ed.tile.GetFrameIndex();
+        int animIndex = ed.tile.GetAnimationIndex();
+        if (animIndex >= ed.tile.GetAnimationCount()) return;
+        VAnimation anim = ed.tile.GetAnimation(animIndex);
+        int count = anim.GetFrameCount();
+
+        GUILayout.BeginVertical("box");
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Frames");
+        if (count > 1 && index < count && GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveFrameAct(animIndex, index));
+        for (int i = 0; i < count; i ++)
+        {
+            if (GUILayout.Toggle(i == index, "" + i, "button") && i != index) actQueue.Enqueue(new ChangeFrameIndexAct(i));
+        }
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddFrameAct(animIndex));
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Frame Duration");
+        float duration;
+        if (float.TryParse(GUILayout.TextField(anim.GetFrame(index).GetDuration().ToString(), GUILayout.Width(50)), out duration))
+        {
+            if (duration != anim.GetFrame(index).GetDuration()) actQueue.Enqueue(new ChangeFrameInfoAct(animIndex, index, duration));
+        }
+        GUILayout.FlexibleSpace();
+        GUILayout.Label("Playback");
+        bool play = GUILayout.Toggle(playAnimation, "Play", "button");
+        if (play != playAnimation)
+        {
+            animationTime = 0f;
+            playAnimation = play;
+        }
+        loopAnimation = GUILayout.Toggle(loopAnimation, "Loop", "button");
+        GUILayout.EndHorizontal();
+        GUILayout.EndVertical();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
+    }
 
     void Tile()
     {
@@ -308,26 +382,26 @@ public class UI : MonoBehaviour
         GUILayout.FlexibleSpace();
         GUILayout.Label("Layers");
         GUILayout.FlexibleSpace();
-        if (GUILayout.Button("+", GUILayout.Width(25))) actQueue.Enqueue(new AddLayerAct("Layer " + ed.tile.GetLayerCount()));
+        if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddLayerAct("Layer " + ed.tile.GetLayerCount()));
         GUILayout.EndHorizontal();
         int layerIndex = ed.tile.GetLayerIndex();
         for (int i = ed.tile.GetLayerCount() - 1; i >= 0; i--)
         {
             VLayer layer = ed.tile.GetLayer(i);
             GUILayout.BeginHorizontal();
-            layerIndex = GUILayout.Toggle(layerIndex == i, layerIndex == i ? "" : "", "button", GUILayout.Width(25)) ? i : layerIndex;
+            layerIndex = GUILayout.Toggle(layerIndex == i, layerIndex == i ? "" : "", "button", GUILayout.Width(20)) ? i : layerIndex;
             string name = GUILayout.TextField(layer.GetName(), GUILayout.Width(60));
-            bool vis = GUILayout.Toggle(layer.GetVisible(), "V", "button", GUILayout.Width(25));
-            bool trans = GUILayout.Toggle(layer.GetTransparent(), "T", "button", GUILayout.Width(25));
-            bool line = GUILayout.Toggle(layer.GetOutline(), "O", "button", GUILayout.Width(25));
+            bool vis = GUILayout.Toggle(layer.GetVisible(), "V", "button", GUILayout.Width(20));
+            bool trans = GUILayout.Toggle(layer.GetTransparent(), "T", "button", GUILayout.Width(20));
+            bool line = GUILayout.Toggle(layer.GetOutline(), "O", "button", GUILayout.Width(20));
             GUILayout.FlexibleSpace();
             if (ed.tile.GetLayerCount() > 1)
             {
-                if (GUILayout.Button("-", GUILayout.Width(25))) actQueue.Enqueue(new RemoveLayerAct(i));
+                if (GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveLayerAct(i));
             }
             else
             {
-                GUILayout.Space(30f);
+                GUILayout.Space(25f);
             }
             GUILayout.EndHorizontal();
 
@@ -340,6 +414,44 @@ public class UI : MonoBehaviour
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         
         if (layerIndex != ed.tile.GetLayerIndex()) actQueue.Enqueue(new ChangeLayerIndexAct(layerIndex));
+    }
+    
+    void Animations()
+    {
+        GUILayout.BeginVertical("box", GUILayout.Width(200));
+        GUILayout.BeginHorizontal();
+        GUILayout.Space(25);
+        GUILayout.FlexibleSpace();
+        GUILayout.Label("Animations");
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddAnimationAct("Animation " + ed.tile.GetAnimationCount()));
+        GUILayout.EndHorizontal();
+        int animIndex = ed.tile.GetAnimationIndex();
+        for (int i = ed.tile.GetAnimationCount() - 1; i >= 0; i--)
+        {
+            VAnimation anim = ed.tile.GetAnimation(i);
+            GUILayout.BeginHorizontal();
+            animIndex = GUILayout.Toggle(animIndex == i, animIndex == i ? "" : "", "button", GUILayout.Width(20)) ? i : animIndex;
+            string name = GUILayout.TextField(anim.GetName());
+            if (ed.tile.GetAnimationCount() > 1)
+            {
+                if (GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveAnimationAct(i));
+            }
+            else
+            {
+                GUILayout.Space(30f);
+            }
+            GUILayout.EndHorizontal();
+
+            if (name != anim.GetName())
+            {
+                actQueue.Enqueue(new ChangeAnimationInfoAct(i, name));
+            }
+        }
+        GUILayout.EndVertical();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
+
+        if (animIndex != ed.tile.GetAnimationIndex()) actQueue.Enqueue(new ChangeAnimationIndexAct(animIndex));
     }
 
     void RefPalette()

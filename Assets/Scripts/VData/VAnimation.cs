@@ -4,6 +4,7 @@ using System;
 
 public class VAnimation : ISerializable
 {
+    string name = "Default";
     bool dirty;
 
     public void SetDirty(bool val = true)
@@ -29,9 +30,43 @@ public class VAnimation : ISerializable
         Read(r);
     }
 
-    public void AddFrame(VFrame frame)
+    public VAnimation(string name) : this()
+    {
+        this.name = name;
+    }
+
+    public string GetName()
+    {
+        return name;
+    }
+
+    public void SetName(string name)
+    {
+        this.name = name;
+        SetDirty();
+    }
+
+    public VFrame GetFrame(int index)
+    {
+        return frames[index];
+    }
+
+    public int AddFrame(VFrame frame)
     {
         frames.Add(frame);
+        SetDirty();
+        return frames.Count - 1;
+    }
+
+    public void InsertFrame(int index, VFrame frame)
+    {
+        frames.Insert(index, frame);
+        SetDirty();
+    }
+
+    public void RemoveFrame(int index)
+    {
+        frames.RemoveAt(index);
         SetDirty();
     }
 
@@ -40,8 +75,16 @@ public class VAnimation : ISerializable
         return frames.Count;
     }
 
+    public float GetDuration()
+    {
+        float duration = 0f;
+        foreach (VFrame frame in frames) duration += frame.GetDuration();
+        return duration;
+    }
+
     public void Read(IReader r)
     {
+        name = r.String();
         int len = r.Int();
         frames = new List<VFrame>(len);
         for (int i = 0; i < len; i++)
@@ -53,6 +96,7 @@ public class VAnimation : ISerializable
 
     public void Write(IWriter w)
     {
+        w.String(name);
         w.Int(frames.Count);
         for (int i = 0; i < frames.Count; i++) frames[i].Write(w);
     }
