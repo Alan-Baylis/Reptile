@@ -46,6 +46,8 @@ public class Chunk : MonoBehaviour
 
     public VColor GetColor(int x, int y, int z)
     {
+        int index = GetIndex(x, y, z);
+        if (index >= tile.GetTile().GetPalette().GetCount()) return new VColor(255, 0, 255, 255, 0, 0, 255, 0);
         return tile.GetTile().GetPalette().GetColor(GetIndex(x, y, z));
     }
 

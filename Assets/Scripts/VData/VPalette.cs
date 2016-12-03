@@ -62,6 +62,7 @@ public class VPalette : ISerializable
     public void RemoveColor(int index)
     {
         colors.RemoveAt(index);
+        SetDirty();
     }
 
     public int GetCount()

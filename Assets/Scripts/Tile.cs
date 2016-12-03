@@ -94,6 +94,11 @@ public class Tile : MonoBehaviour
             cs0[i] = new Color32(vc.r, vc.g, vc.b, vc.a);
             cs1[i] = new Color32(vc.m, vc.s, vc.e, vc.u);
         }
+        for (int i = tile.GetPalette().GetCount(); i < 256; i ++)
+        {
+            cs0[i] = new Color32(255, 0, 255, 255);
+            cs1[i] = new Color32(0, 0, 255, 0);
+        }
         tex0.SetPixels32(cs0);
         tex0.Apply();
 
