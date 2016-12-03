@@ -22,7 +22,11 @@ public class Tool : MonoBehaviour
     int ny;
     int nz;
 
-    bool badPlane;
+    int sx;
+    int sy;
+    int sz;
+
+    bool startEditing;
     Plane plane;
 
     Dictionary<int, byte> edits = new Dictionary<int, byte>();
@@ -41,10 +45,10 @@ public class Tool : MonoBehaviour
         {
             editing = true;
             PreviewChunk.use.chunk.SetPaletteIndices(GetChunk().GetPaletteIndices());
-            badPlane = true;
+            startEditing = true;
         }
 
-        if (!planeLock || badPlane || !editing)
+        if (!planeLock || startEditing || !editing)
         {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 1000f, mask))
@@ -78,7 +82,21 @@ public class Tool : MonoBehaviour
                 cursor.forward = n;
 
                 plane = new Plane(n, p);
-                badPlane = false;
+
+                if (startEditing)
+                {
+                    sx = px;
+                    sy = py;
+                    sz = pz;
+                    if ((Edit.use.tool == Edit.Tool.Place && !toolAlt) ||
+                        (Edit.use.tool == Edit.Tool.Box   && !toolAlt))
+                    {
+                        sx += nx;
+                        sy += ny;
+                        sz += nz;
+                    }
+                    startEditing = false;
+                }
             }
             else
             {
@@ -124,23 +142,33 @@ public class Tool : MonoBehaviour
         }
         if (toolHeld)
         {
+            byte currentColor = (byte)Edit.use.tile.GetPalette().GetIndex();
             if (Edit.use.tool == Edit.Tool.Place)
             {
                 if (toolAlt)
                     Paint(px, py, pz, 0, PaintMode.Filled);
                 else
-                    Paint(px + nx, py + ny, pz + nz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Empty);
+                    Paint(px + nx, py + ny, pz + nz, currentColor, PaintMode.Empty);
             }
             if (Edit.use.tool == Edit.Tool.Paint)
             {
-                Paint(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Filled);
+                Paint(px, py, pz, currentColor, PaintMode.Filled);
             }
             if (Edit.use.tool == Edit.Tool.Fill)
             {
                 if (toolAlt)
                     FloodFill(px, py, pz, 0, PaintMode.Filled);
                 else
-                    FloodFill(px, py, pz, (byte)Edit.use.tile.GetPalette().GetIndex(), PaintMode.Filled);
+                    FloodFill(px, py, pz, currentColor, PaintMode.Filled);
+            }
+            if (Edit.use.tool == Edit.Tool.Box)
+            {
+                edits.Clear();
+                PreviewChunk.use.chunk.SetPaletteIndices(GetChunk().GetPaletteIndices());
+                if (toolAlt)
+                    BoxFill(sx, sy, sz, px, py, pz, 0, PaintMode.Filled);
+                else
+                    BoxFill(sx, sy, sz, px + nx, py + ny, pz + nz, currentColor, PaintMode.Empty);
             }
         }
         if (editing && !toolHeld)
@@ -225,6 +253,41 @@ public class Tool : MonoBehaviour
             DoFloodFill(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z, color, mode);
     }
 
+    void BoxFill(int sx, int sy, int sz, int dx, int dy, int dz, byte color, PaintMode mode)
+    {
+        List<int> spts = GetSymmetryPoints(sx, sy, sz);
+        List<int> dpts = GetSymmetryPoints(dx, dy, dz);
+        for (int i = 0; i < spts.Count; i ++)
+        {
+            int psx, psy, psz;
+            FromIndex(spts[i], out psx, out psy, out psz);
+            int pdx, pdy, pdz;
+            FromIndex(dpts[i], out pdx, out pdy, out pdz);
+            DoBoxFill(psx, psy, psz, pdx, pdy, pdz, color, mode);
+        }
+    }
+
+    List<int> GetSymmetryPoints(int x, int y, int z)
+    {
+        List<int> pts = new List<int>();
+        pts.Add(ToIndex(x, y, z));
+        if (Edit.use.mirrorX)
+            pts.Add(ToIndex(Edit.use.tile.GetWidth() - 1 - x, y, z));
+        if (Edit.use.mirrorY)
+            pts.Add(ToIndex(x, Edit.use.tile.GetHeight() - 1 - y, z));
+        if (Edit.use.mirrorZ)
+            pts.Add(ToIndex(x, y, Edit.use.tile.GetDepth() - 1 - z));
+        if (Edit.use.mirrorX && Edit.use.mirrorY)
+            pts.Add(ToIndex(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, z));
+        if (Edit.use.mirrorY && Edit.use.mirrorZ)
+            pts.Add(ToIndex(x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z));
+        if (Edit.use.mirrorX && Edit.use.mirrorZ)
+            pts.Add(ToIndex(Edit.use.tile.GetWidth() - 1 - x, y, Edit.use.tile.GetDepth() - 1 - z));
+        if (Edit.use.mirrorX && Edit.use.mirrorY && Edit.use.mirrorZ)
+            pts.Add(ToIndex(Edit.use.tile.GetWidth() - 1 - x, Edit.use.tile.GetHeight() - 1 - y, Edit.use.tile.GetDepth() - 1 - z));
+        return pts;
+    }
+
     List<int> GetFillNeighbors(int x, int y, int z, byte color)
     {
         List<int> neighbors = new List<int>();
@@ -283,6 +346,25 @@ public class Tool : MonoBehaviour
                     if (mode == PaintMode.Empty && !IsEmpty(px, py, pz)) continue;
                     if (brush == Edit.Brush.Diamond && Mathf.Abs(px - x) + Mathf.Abs(py - y) + Mathf.Abs(pz - z) >= size) continue;
                     if (brush == Edit.Brush.Sphere && Vector3.Distance(new Vector3(x, y, z), new Vector3(px, py, pz)) > size) continue;
+
+                    PreviewChunk.use.chunk.SetPaletteIndexAt(px, py, pz, color);
+                    edits[ToIndex(px, py, pz)] = color;
+                }
+            }
+        }
+    }
+
+    void DoBoxFill(int sx, int sy, int sz, int dx, int dy, int dz, byte color, PaintMode mode)
+    {
+        for (int px = Mathf.Min(sx, dx); px <= Mathf.Max(sx, dx); px ++)
+        {
+            for (int py = Mathf.Min(sy, dy); py <= Mathf.Max(sy, dy); py ++)
+            {
+                for (int pz = Mathf.Min(sz, dz); pz <= Mathf.Max(sz, dz); pz ++)
+                {
+                    if (IsOutOfBounds(px, py, pz)) continue;
+                    if (mode == PaintMode.Filled && IsEmpty(px, py, pz)) continue;
+                    if (mode == PaintMode.Empty && !IsEmpty(px, py, pz)) continue;
 
                     PreviewChunk.use.chunk.SetPaletteIndexAt(px, py, pz, color);
                     edits[ToIndex(px, py, pz)] = color;

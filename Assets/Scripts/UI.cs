@@ -188,7 +188,7 @@ public class UI : MonoBehaviour
     {
         GUILayout.BeginVertical("box");
         GUILayout.Label("Tool");
-        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill" }, 1, "tool");
+        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill", "Box" }, 1, "tool");
         if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
         GUILayout.Label("Brush Type");
         Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 1);
@@ -503,6 +503,7 @@ public class UI : MonoBehaviour
             Edit.use.bindToolPlace,
             Edit.use.bindToolPaint,
             Edit.use.bindToolFill,
+            Edit.use.bindToolBox,
             Edit.use.bindUseTool,
             Edit.use.bindUseToolAlt,
             Edit.use.bindPlaneLock

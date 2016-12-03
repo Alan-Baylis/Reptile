@@ -57,8 +57,8 @@ public class Edit : MonoBehaviour
         Place,
         Paint,
         Fill,
-        Move,
         Box,
+        Move,
         Wand
     }
 
@@ -88,8 +88,8 @@ public class Edit : MonoBehaviour
         if (bindToolPlace.IsPressed()) Do(new ChangeToolAct(Tool.Place));
         if (bindToolPaint.IsPressed()) Do(new ChangeToolAct(Tool.Paint));
         if (bindToolFill.IsPressed()) Do(new ChangeToolAct(Tool.Fill));
-        if (bindToolMove.IsPressed()) Do(new ChangeToolAct(Tool.Move));
         if (bindToolBox.IsPressed()) Do(new ChangeToolAct(Tool.Box));
+        if (bindToolMove.IsPressed()) Do(new ChangeToolAct(Tool.Move));
         if (bindToolWand.IsPressed()) Do(new ChangeToolAct(Tool.Wand));
         if (batch.Count > 0 && Time.time > batchTime)
         {

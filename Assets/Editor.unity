@@ -894,6 +894,7 @@ MonoBehaviour:
   mirrorZ: 0
   planeLock: 0
   fillDiagonals: 0
+  camSnap: 0
   bindUndo:
     name: Undo
     key: 122
@@ -1035,8 +1036,8 @@ MonoBehaviour:
     alt: 0
     blockedByUI: 0
   bindToolBox:
-    name: 
-    key: 116
+    name: Select Box Tool
+    key: 114
     btn: -1
     axis: 
     negateAxis: 0
@@ -1398,6 +1399,10 @@ MonoBehaviour:
   rotSpeed: 15
   panSpeed: 0.075
   zoomSpeed: 1
+  focus: {x: 3.5, y: 3.5, z: 3.5}
+  dist: 16
+  angles: {x: 0, y: 0, z: 0}
+  cam: {fileID: 0}
 --- !u!114 &1269009683
 MonoBehaviour:
   m_ObjectHideFlags: 0
