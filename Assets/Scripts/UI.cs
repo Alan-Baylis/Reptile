@@ -243,9 +243,13 @@ public class UI : MonoBehaviour
     void Console()
     {
         GUILayout.BeginVertical();
-        foreach (string msg in errMsgs)
+        if (errMsgs.Count > 0)
         {
-            GUILayout.TextField(msg);
+            GUILayout.Label("<size=32><color=red>Something broke! Copy the error messages below and send them to the developer, describing the last three steps you performed.</color></size>");
+        }
+        for (int i = 0; i < Mathf.Min(3, errMsgs.Count); i ++)
+        {
+            GUILayout.TextField(errMsgs[i]);
         }
         GUILayout.EndVertical();
     }
