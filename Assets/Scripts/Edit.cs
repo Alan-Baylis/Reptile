@@ -83,6 +83,7 @@ public class Edit : MonoBehaviour
     void Update()
     {
         tile.SetDirty(false);
+        PreviewChunk.use.chunk.SetDirty(false);
         if (bindUndo.IsPressed() && undos.Count > 0) Do(new UndoAct());
         if (bindRedo.IsPressed() && redos.Count > 0) Do(new RedoAct());
         if (bindToolPlace.IsPressed()) Do(new ChangeToolAct(Tool.Place));
