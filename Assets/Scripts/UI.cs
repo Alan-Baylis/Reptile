@@ -21,8 +21,17 @@ public class UI : MonoBehaviour
 
     Queue<Act> actQueue = new Queue<Act>();
 
-    bool showAdvancedColor;
-    bool showKeyBindings;
+    bool showTool = true;
+    bool showPalette = true;
+    bool showRefPalette = false;
+    bool showColorPicker = true;
+    bool showFrames = true;
+    bool showCamera = true;
+    bool showTile = true;
+    bool showLayers = true;
+    bool showAnimations = true;
+    bool showAdvancedColor = false;
+    bool showKeyBindings = false;
 
     bool playAnimation;
     float animationTime;
@@ -57,6 +66,7 @@ public class UI : MonoBehaviour
             else msg = "<color=red>" + msg + "</color>";
             errMsgs.Add(msg);
         };
+        Profiler.maxNumberOfSamplesPerFrame = -1;
     }
 
     void Start()
@@ -134,6 +144,7 @@ public class UI : MonoBehaviour
         Palette();
         RefPalette();
         ColorPicker();
+        GUILayout.FlexibleSpace();
         GUILayout.EndVertical();
         GUILayout.BeginVertical();
         GUILayout.BeginHorizontal();
@@ -190,51 +201,54 @@ public class UI : MonoBehaviour
     void Tool()
     {
         GUILayout.BeginVertical("box");
-        GUILayout.Label("Tool");
-        Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill", "Box" }, 1, "tool");
-        if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
-        GUILayout.Label("Brush Type");
-        Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 1);
-        if (brush != Edit.use.brush) actQueue.Enqueue(new ChangeBrushAct(brush));
-        GUILayout.Label("Brush Size");
-        GUILayout.BeginHorizontal();
-        GUI.enabled = ed.brushSize > 1;
-        if (GUILayout.Button("-")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize - 1));
-        GUI.enabled = true;
-        int brushSize;
-        if (int.TryParse(GUILayout.TextField(ed.brushSize.ToString()), out brushSize))
+        showTool = GUILayout.Toggle(showTool, "Tool", "boxhead");
+        if (showTool)
         {
-            if (brushSize != ed.brushSize) actQueue.Enqueue(new ChangeBrushSizeAct(brushSize));
-        }
-        if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
-        GUILayout.EndHorizontal();
-        GUILayout.Label("Symmetry");
-        GUILayout.BeginHorizontal();
-        GUI.color = Color.Lerp(Color.red, Color.white, 0.5f);
-        bool mirrorX = GUILayout.Toggle(Edit.use.mirrorX, "X", "button");
-        GUI.color = Color.Lerp(Color.green, Color.white, 0.5f);
-        bool mirrorY = GUILayout.Toggle(Edit.use.mirrorY, "Y", "button");
-        GUI.color = Color.Lerp(Color.blue, Color.white, 0.5f);
-        bool mirrorZ = GUILayout.Toggle(Edit.use.mirrorZ, "Z", "button");
-        GUI.color = Color.white;
-        if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
-            actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
-        GUILayout.EndHorizontal();
-        GUILayout.Label("Tool Options");
-        if (Edit.use.bindPlaneLock.IsHeld())
-        {
-            bool planeLock = !GUILayout.Toggle(!Edit.use.planeLock, "Plane Lock", "button");
-            if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
-        }
-        else
-        {
-            bool planeLock = GUILayout.Toggle(Edit.use.planeLock, "Plane Lock", "button");
-            if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
-        }
-        if (tool == Edit.Tool.Fill)
-        {
-            bool fillDiagonals = GUILayout.Toggle(Edit.use.fillDiagonals, "Diagonals", "button");
-            if (fillDiagonals != Edit.use.fillDiagonals) actQueue.Enqueue(new ChangeFillDiagonalsAct(fillDiagonals));
+            Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill", "Box" }, 1, "tool");
+            if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
+            GUILayout.Label("Brush Type");
+            Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 1);
+            if (brush != Edit.use.brush) actQueue.Enqueue(new ChangeBrushAct(brush));
+            GUILayout.Label("Brush Size");
+            GUILayout.BeginHorizontal();
+            GUI.enabled = ed.brushSize > 1;
+            if (GUILayout.Button("-")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize - 1));
+            GUI.enabled = true;
+            int brushSize;
+            if (int.TryParse(GUILayout.TextField(ed.brushSize.ToString()), out brushSize))
+            {
+                if (brushSize != ed.brushSize) actQueue.Enqueue(new ChangeBrushSizeAct(brushSize));
+            }
+            if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
+            GUILayout.EndHorizontal();
+            GUILayout.Label("Symmetry");
+            GUILayout.BeginHorizontal();
+            GUI.color = Color.Lerp(Color.red, Color.white, 0.5f);
+            bool mirrorX = GUILayout.Toggle(Edit.use.mirrorX, "X", "button");
+            GUI.color = Color.Lerp(Color.green, Color.white, 0.5f);
+            bool mirrorY = GUILayout.Toggle(Edit.use.mirrorY, "Y", "button");
+            GUI.color = Color.Lerp(Color.blue, Color.white, 0.5f);
+            bool mirrorZ = GUILayout.Toggle(Edit.use.mirrorZ, "Z", "button");
+            GUI.color = Color.white;
+            if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
+                actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
+            GUILayout.EndHorizontal();
+            GUILayout.Label("Tool Options");
+            if (Edit.use.bindPlaneLock.IsHeld())
+            {
+                bool planeLock = !GUILayout.Toggle(!Edit.use.planeLock, "Plane Lock", "button");
+                if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
+            }
+            else
+            {
+                bool planeLock = GUILayout.Toggle(Edit.use.planeLock, "Plane Lock", "button");
+                if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
+            }
+            if (tool == Edit.Tool.Fill)
+            {
+                bool fillDiagonals = GUILayout.Toggle(Edit.use.fillDiagonals, "Diagonals", "button");
+                if (fillDiagonals != Edit.use.fillDiagonals) actQueue.Enqueue(new ChangeFillDiagonalsAct(fillDiagonals));
+            }
         }
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
@@ -257,27 +271,30 @@ public class UI : MonoBehaviour
     void Camera()
     {
         GUILayout.BeginVertical("box");
-        GUILayout.Label("Camera");
-        bool camOrtho = !GUILayout.Toggle(!Cam.use.cam.orthographic, "Perspective", "button");
-        if (camOrtho != Cam.use.cam.orthographic) actQueue.Enqueue(new ChangeCamOrthoAct(camOrtho));
-        camOrtho = GUILayout.Toggle(Cam.use.cam.orthographic, "Orthographic", "button");
-        if (camOrtho != Cam.use.cam.orthographic) actQueue.Enqueue(new ChangeCamOrthoAct(camOrtho));
-        GUILayout.Label("Options");
-        bool camSnap = GUILayout.Toggle(Edit.use.camSnap, "Angle Snap", "button");
-        if (camSnap != Edit.use.camSnap) actQueue.Enqueue(new ChangeCamSnapAct(camSnap));
-        GUILayout.Label("Bookmarks");
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("+X")) SetCamBookmark(new Vector3(0f, 90f, 0f));
-        if (GUILayout.Button("+Y")) SetCamBookmark(new Vector3(270f, 0f, 0f));
-        if (GUILayout.Button("+Z")) SetCamBookmark(new Vector3(0f, 0f, 0f));
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("-X")) SetCamBookmark(new Vector3(0f, 270f, 0f));
-        if (GUILayout.Button("-Y")) SetCamBookmark(new Vector3(90, 0f, 0f));
-        if (GUILayout.Button("-Z")) SetCamBookmark(new Vector3(0f, 180f, 0f));
-        GUILayout.EndHorizontal();
-        if (GUILayout.Button("Isometric")) SetCamBookmark(new Vector3(35.2643897f, 45f, 0f));
-        if (GUILayout.Button("Top-Down")) SetCamBookmark(new Vector3(45f, 0f, 0f));
+        showCamera = GUILayout.Toggle(showCamera, "Camera", "boxhead");
+        if (showCamera)
+        {
+            bool camOrtho = !GUILayout.Toggle(!Cam.use.cam.orthographic, "Perspective", "button");
+            if (camOrtho != Cam.use.cam.orthographic) actQueue.Enqueue(new ChangeCamOrthoAct(camOrtho));
+            camOrtho = GUILayout.Toggle(Cam.use.cam.orthographic, "Orthographic", "button");
+            if (camOrtho != Cam.use.cam.orthographic) actQueue.Enqueue(new ChangeCamOrthoAct(camOrtho));
+            GUILayout.Label("Options");
+            bool camSnap = GUILayout.Toggle(Edit.use.camSnap, "Angle Snap", "button");
+            if (camSnap != Edit.use.camSnap) actQueue.Enqueue(new ChangeCamSnapAct(camSnap));
+            GUILayout.Label("Bookmarks");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("+X")) SetCamBookmark(new Vector3(0f, 90f, 0f));
+            if (GUILayout.Button("+Y")) SetCamBookmark(new Vector3(270f, 0f, 0f));
+            if (GUILayout.Button("+Z")) SetCamBookmark(new Vector3(0f, 0f, 0f));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("-X")) SetCamBookmark(new Vector3(0f, 270f, 0f));
+            if (GUILayout.Button("-Y")) SetCamBookmark(new Vector3(90, 0f, 0f));
+            if (GUILayout.Button("-Z")) SetCamBookmark(new Vector3(0f, 180f, 0f));
+            GUILayout.EndHorizontal();
+            if (GUILayout.Button("Isometric")) SetCamBookmark(new Vector3(35.2643897f, 45f, 0f));
+            if (GUILayout.Button("Top-Down")) SetCamBookmark(new Vector3(45f, 0f, 0f));
+        }
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
     }
@@ -297,33 +314,37 @@ public class UI : MonoBehaviour
         int count = anim.GetFrameCount();
 
         GUILayout.BeginVertical("box");
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Frames");
-        if (count > 1 && index < count && GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveFrameAct(animIndex, index));
-        for (int i = 0; i < count; i ++)
+        showFrames = GUILayout.Toggle(showFrames, "Timeline", "boxhead");
+        if (showFrames)
         {
-            if (GUILayout.Toggle(i == index, "" + i, "button") && i != index) actQueue.Enqueue(new ChangeFrameIndexAct(i));
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Frames");
+            if (count > 1 && index < count && GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveFrameAct(animIndex, index));
+            for (int i = 0; i < count; i++)
+            {
+                if (GUILayout.Toggle(i == index, "" + i, "button") && i != index) actQueue.Enqueue(new ChangeFrameIndexAct(i));
+            }
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddFrameAct(animIndex));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Frame Duration");
+            float duration;
+            if (float.TryParse(GUILayout.TextField(anim.GetFrame(index).GetDuration().ToString(), GUILayout.Width(50)), out duration))
+            {
+                if (duration != anim.GetFrame(index).GetDuration()) actQueue.Enqueue(new ChangeFrameInfoAct(animIndex, index, duration));
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Playback");
+            bool play = GUILayout.Toggle(playAnimation, "Play", "button");
+            if (play != playAnimation)
+            {
+                animationTime = 0f;
+                playAnimation = play;
+            }
+            loopAnimation = GUILayout.Toggle(loopAnimation, "Loop", "button");
+            GUILayout.EndHorizontal();
         }
-        GUILayout.FlexibleSpace();
-        if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddFrameAct(animIndex));
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Frame Duration");
-        float duration;
-        if (float.TryParse(GUILayout.TextField(anim.GetFrame(index).GetDuration().ToString(), GUILayout.Width(50)), out duration))
-        {
-            if (duration != anim.GetFrame(index).GetDuration()) actQueue.Enqueue(new ChangeFrameInfoAct(animIndex, index, duration));
-        }
-        GUILayout.FlexibleSpace();
-        GUILayout.Label("Playback");
-        bool play = GUILayout.Toggle(playAnimation, "Play", "button");
-        if (play != playAnimation)
-        {
-            animationTime = 0f;
-            playAnimation = play;
-        }
-        loopAnimation = GUILayout.Toggle(loopAnimation, "Loop", "button");
-        GUILayout.EndHorizontal();
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
     }
@@ -331,71 +352,73 @@ public class UI : MonoBehaviour
     void Tile()
     {
         GUILayout.BeginVertical("box");
-        GUILayout.Label("Tile");
-
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Load"))
+        showTile = GUILayout.Toggle(showTile, "Tile", "boxhead");
+        if (showTile)
         {
-            string path = TinyFileDialogs.OpenFileDialog("Load Tile", Edit.GetDirectory(), new[] { "*.rtile" }, "Reptile Tiles (*.rtile)", false);
-            if (!string.IsNullOrEmpty(path))
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Load"))
             {
-                actQueue.Enqueue(new LoadTileAct(System.IO.File.ReadAllBytes(path)));
+                string path = TinyFileDialogs.OpenFileDialog("Load Tile", Edit.GetDirectory(), new[] { "*.rtile" }, "Reptile Tiles (*.rtile)", false);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    actQueue.Enqueue(new LoadTileAct(System.IO.File.ReadAllBytes(path)));
+                }
             }
-        }
-        if (GUILayout.Button("Save"))
-        {
-            string path = TinyFileDialogs.SaveFileDialog("Save Tile", Edit.GetDirectory(), new[] { "*.rtile" }, "Reptile Tiles (*.rtile)");
-            if (!string.IsNullOrEmpty(path))
+            if (GUILayout.Button("Save"))
             {
-                if (!path.Contains(".")) path += ".rtile";
-                System.IO.File.WriteAllBytes(path, new BinaryWriter(Edit.use.tile).GetOutput());
+                string path = TinyFileDialogs.SaveFileDialog("Save Tile", Edit.GetDirectory(), new[] { "*.rtile" }, "Reptile Tiles (*.rtile)");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (!path.Contains(".")) path += ".rtile";
+                    System.IO.File.WriteAllBytes(path, new BinaryWriter(Edit.use.tile).GetOutput());
+                }
             }
-        }
-        if (GUILayout.Button("New"))
-        {
-            actQueue.Enqueue(new NewTileAct());
-        }
-        GUILayout.EndHorizontal();
+            if (GUILayout.Button("New"))
+            {
+                actQueue.Enqueue(new NewTileAct());
+            }
+            GUILayout.EndHorizontal();
 
-        GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Width");
-        int w;
-        if (int.TryParse(GUILayout.TextField(Edit.width.ToString()), out w))
-        {
-            if (w != ed.tile.GetWidth()) Edit.width = w;
-        };
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Height");
-        int h;
-        if (int.TryParse(GUILayout.TextField(Edit.height.ToString()), out h))
-        {
-            if (h != ed.tile.GetHeight()) Edit.height = h;
-        };
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Depth");
-        int d;
-        if (int.TryParse(GUILayout.TextField(Edit.depth.ToString()), out d))
-        {
-            if (d != ed.tile.GetDepth()) Edit.depth = d;
-        };
-        GUILayout.EndVertical();
-        GUILayout.EndHorizontal();
-        GUI.enabled = Edit.width != ed.tile.GetWidth() || Edit.height != ed.tile.GetHeight() || Edit.depth != ed.tile.GetDepth();
-        if (GUILayout.Button("Apply"))
-        {
-            actQueue.Enqueue(new ResizeTileAct(Edit.width, Edit.height, Edit.depth));
-        }
-        GUI.enabled = true;
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+            GUILayout.Label("Width");
+            int w;
+            if (int.TryParse(GUILayout.TextField(Edit.width.ToString()), out w))
+            {
+                if (w != ed.tile.GetWidth()) Edit.width = w;
+            };
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            GUILayout.Label("Height");
+            int h;
+            if (int.TryParse(GUILayout.TextField(Edit.height.ToString()), out h))
+            {
+                if (h != ed.tile.GetHeight()) Edit.height = h;
+            };
+            GUILayout.EndVertical();
+            GUILayout.BeginVertical();
+            GUILayout.Label("Depth");
+            int d;
+            if (int.TryParse(GUILayout.TextField(Edit.depth.ToString()), out d))
+            {
+                if (d != ed.tile.GetDepth()) Edit.depth = d;
+            };
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+            GUI.enabled = Edit.width != ed.tile.GetWidth() || Edit.height != ed.tile.GetHeight() || Edit.depth != ed.tile.GetDepth();
+            if (GUILayout.Button("Apply"))
+            {
+                actQueue.Enqueue(new ResizeTileAct(Edit.width, Edit.height, Edit.depth));
+            }
+            GUI.enabled = true;
 
-        GUILayout.Label("Presets");
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("8³")) actQueue.Enqueue(new ResizeTileAct(8, 8, 8));
-        if (GUILayout.Button("16³")) actQueue.Enqueue(new ResizeTileAct(16, 16, 16));
-        if (GUILayout.Button("32³")) actQueue.Enqueue(new ResizeTileAct(32, 32, 32));
-        GUILayout.EndHorizontal();
+            GUILayout.Label("Presets");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("8³")) actQueue.Enqueue(new ResizeTileAct(8, 8, 8));
+            if (GUILayout.Button("16³")) actQueue.Enqueue(new ResizeTileAct(16, 16, 16));
+            if (GUILayout.Button("32³")) actQueue.Enqueue(new ResizeTileAct(32, 32, 32));
+            GUILayout.EndHorizontal();
+        }
 
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
@@ -404,37 +427,38 @@ public class UI : MonoBehaviour
     void Layers()
     {
         GUILayout.BeginVertical("box", GUILayout.Width(200));
-        GUILayout.BeginHorizontal();
-        GUILayout.Space(25);
-        GUILayout.FlexibleSpace();
-        GUILayout.Label("Layers");
-        GUILayout.FlexibleSpace();
-        if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddLayerAct("Layer " + ed.tile.GetLayerCount()));
-        GUILayout.EndHorizontal();
+        showLayers = GUILayout.Toggle(showLayers, "Layers", "boxhead");
         int layerIndex = ed.tile.GetLayerIndex();
-        for (int i = ed.tile.GetLayerCount() - 1; i >= 0; i--)
+        if (showLayers)
         {
-            VLayer layer = ed.tile.GetLayer(i);
             GUILayout.BeginHorizontal();
-            layerIndex = GUILayout.Toggle(layerIndex == i, layerIndex == i ? "" : "", "button", GUILayout.Width(20)) ? i : layerIndex;
-            string name = GUILayout.TextField(layer.GetName(), GUILayout.Width(60));
-            bool vis = GUILayout.Toggle(layer.GetVisible(), "V", "button", GUILayout.Width(20));
-            bool trans = GUILayout.Toggle(layer.GetTransparent(), "T", "button", GUILayout.Width(20));
-            bool line = GUILayout.Toggle(layer.GetOutline(), "O", "button", GUILayout.Width(20));
             GUILayout.FlexibleSpace();
-            if (ed.tile.GetLayerCount() > 1)
-            {
-                if (GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveLayerAct(i));
-            }
-            else
-            {
-                GUILayout.Space(25f);
-            }
+            if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddLayerAct("Layer " + ed.tile.GetLayerCount()));
             GUILayout.EndHorizontal();
-
-            if (name != layer.GetName() || vis != layer.GetVisible() || trans != layer.GetTransparent() || line != layer.GetOutline())
+            for (int i = ed.tile.GetLayerCount() - 1; i >= 0; i--)
             {
-                actQueue.Enqueue(new ChangeLayerInfoAct(i, name, vis, trans, line));
+                VLayer layer = ed.tile.GetLayer(i);
+                GUILayout.BeginHorizontal();
+                layerIndex = GUILayout.Toggle(layerIndex == i, layerIndex == i ? "" : "", "button", GUILayout.Width(20)) ? i : layerIndex;
+                string name = GUILayout.TextField(layer.GetName(), GUILayout.Width(60));
+                bool vis = GUILayout.Toggle(layer.GetVisible(), "V", "button", GUILayout.Width(20));
+                bool trans = GUILayout.Toggle(layer.GetTransparent(), "T", "button", GUILayout.Width(20));
+                bool line = GUILayout.Toggle(layer.GetOutline(), "O", "button", GUILayout.Width(20));
+                GUILayout.FlexibleSpace();
+                if (ed.tile.GetLayerCount() > 1)
+                {
+                    if (GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveLayerAct(i));
+                }
+                else
+                {
+                    GUILayout.Space(25f);
+                }
+                GUILayout.EndHorizontal();
+
+                if (name != layer.GetName() || vis != layer.GetVisible() || trans != layer.GetTransparent() || line != layer.GetOutline())
+                {
+                    actQueue.Enqueue(new ChangeLayerInfoAct(i, name, vis, trans, line));
+                }
             }
         }
         GUILayout.EndVertical();
@@ -446,33 +470,34 @@ public class UI : MonoBehaviour
     void Animations()
     {
         GUILayout.BeginVertical("box", GUILayout.Width(200));
-        GUILayout.BeginHorizontal();
-        GUILayout.Space(25);
-        GUILayout.FlexibleSpace();
-        GUILayout.Label("Animations");
-        GUILayout.FlexibleSpace();
-        if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddAnimationAct("Animation " + ed.tile.GetAnimationCount()));
-        GUILayout.EndHorizontal();
+        showAnimations = GUILayout.Toggle(showAnimations, "Animations", "boxhead");
         int animIndex = ed.tile.GetAnimationIndex();
-        for (int i = ed.tile.GetAnimationCount() - 1; i >= 0; i--)
+        if (showAnimations)
         {
-            VAnimation anim = ed.tile.GetAnimation(i);
             GUILayout.BeginHorizontal();
-            animIndex = GUILayout.Toggle(animIndex == i, animIndex == i ? "" : "", "button", GUILayout.Width(20)) ? i : animIndex;
-            string name = GUILayout.TextField(anim.GetName());
-            if (ed.tile.GetAnimationCount() > 1)
-            {
-                if (GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveAnimationAct(i));
-            }
-            else
-            {
-                GUILayout.Space(30f);
-            }
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("+", GUILayout.Width(20))) actQueue.Enqueue(new AddAnimationAct("Animation " + ed.tile.GetAnimationCount()));
             GUILayout.EndHorizontal();
-
-            if (name != anim.GetName())
+            for (int i = ed.tile.GetAnimationCount() - 1; i >= 0; i--)
             {
-                actQueue.Enqueue(new ChangeAnimationInfoAct(i, name));
+                VAnimation anim = ed.tile.GetAnimation(i);
+                GUILayout.BeginHorizontal();
+                animIndex = GUILayout.Toggle(animIndex == i, animIndex == i ? "" : "", "button", GUILayout.Width(20)) ? i : animIndex;
+                string name = GUILayout.TextField(anim.GetName());
+                if (ed.tile.GetAnimationCount() > 1)
+                {
+                    if (GUILayout.Button("-", GUILayout.Width(20))) actQueue.Enqueue(new RemoveAnimationAct(i));
+                }
+                else
+                {
+                    GUILayout.Space(30f);
+                }
+                GUILayout.EndHorizontal();
+
+                if (name != anim.GetName())
+                {
+                    actQueue.Enqueue(new ChangeAnimationInfoAct(i, name));
+                }
             }
         }
         GUILayout.EndVertical();
@@ -483,31 +508,36 @@ public class UI : MonoBehaviour
 
     void RefPalette()
     {
-        refPalScroll = GUILayout.BeginScrollView(refPalScroll, "box", GUILayout.Width(145));
-        GUILayout.Label("Reference Palette");
+        GUILayout.BeginVertical("box", GUILayout.Width(145));
+        showRefPalette = GUILayout.Toggle(showRefPalette, "Source Palette", "boxhead");
         int index = -1;
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Load"))
+        if (showRefPalette)
         {
-            string path = TinyFileDialogs.OpenFileDialog("Load Reference Palette", Edit.GetDirectory(), new[] { "*.rpal" }, "Reptile Palettes (*.rpal)", false);
-            if (!string.IsNullOrEmpty(path))
+            refPalScroll = GUILayout.BeginScrollView(refPalScroll);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Load"))
             {
-                actQueue.Enqueue(new LoadRefPaletteAct(System.IO.File.ReadAllBytes(path)));
+                string path = TinyFileDialogs.OpenFileDialog("Load Source Palette", Edit.GetDirectory(), new[] { "*.rpal" }, "Reptile Palettes (*.rpal)", false);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    actQueue.Enqueue(new LoadRefPaletteAct(System.IO.File.ReadAllBytes(path)));
+                }
             }
-        }
-        GUILayout.EndHorizontal();
-        for (int i = 0; i < Edit.use.refPalette.GetCount(); i++)
-        {
-            if (i % 4 == 0)
+            GUILayout.EndHorizontal();
+            for (int i = 0; i < Edit.use.refPalette.GetCount(); i++)
             {
-                if (i > 0) GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
+                if (i % 4 == 0)
+                {
+                    if (i > 0) GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                }
+                VColor c = Edit.use.refPalette.GetColor(i);
+                index = Swatch(i == index, new Color32(c.r, c.g, c.b, c.a)) ? i : index;
             }
-            VColor c = Edit.use.refPalette.GetColor(i);
-            index = Swatch(i == index, new Color32(c.r, c.g, c.b, c.a)) ? i : index;
+            GUILayout.EndHorizontal();
+            GUILayout.EndScrollView();
         }
-        GUILayout.EndHorizontal();
-        GUILayout.EndScrollView();
+        GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         
         if (index >= 0) actQueue.Enqueue(new ChangePaletteColorAct(ed.refPalette.GetColor(index), ed.tile.GetPalette().GetIndex()));
@@ -515,52 +545,57 @@ public class UI : MonoBehaviour
 
     void Palette()
     {
-        palScroll = GUILayout.BeginScrollView(palScroll, "box", GUILayout.Width(145));
-        GUILayout.Label("Palette");
+        GUILayout.BeginVertical("box", GUILayout.Width(145));
+        showPalette = GUILayout.Toggle(showPalette, "Palette", "boxhead");
         int index = ed.tile.GetPalette().GetIndex();
         VPalette palette = Edit.use.tile.GetPalette();
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Load"))
+        if (showPalette)
         {
-            string path = TinyFileDialogs.OpenFileDialog("Load Palette", Edit.GetDirectory(), new[] { "*.rpal" }, "Reptile Palettes (*.rpal)", false);
-            if (!string.IsNullOrEmpty(path))
+            palScroll = GUILayout.BeginScrollView(palScroll);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Load"))
             {
-                actQueue.Enqueue(new LoadPaletteAct(System.IO.File.ReadAllBytes(path)));
+                string path = TinyFileDialogs.OpenFileDialog("Load Palette", Edit.GetDirectory(), new[] { "*.rpal" }, "Reptile Palettes (*.rpal)", false);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    actQueue.Enqueue(new LoadPaletteAct(System.IO.File.ReadAllBytes(path)));
+                }
             }
-        }
-        if (GUILayout.Button("Save"))
-        {
-            string path = TinyFileDialogs.SaveFileDialog("Save Palette", Edit.GetDirectory(), new[] { "*.rpal" }, "Reptile Palettes (*.rpal)");
-            if (!string.IsNullOrEmpty(path))
+            if (GUILayout.Button("Save"))
             {
-                if (!path.Contains(".")) path += ".rpal";
-                System.IO.File.WriteAllBytes(path, new BinaryWriter(palette).GetOutput());
+                string path = TinyFileDialogs.SaveFileDialog("Save Palette", Edit.GetDirectory(), new[] { "*.rpal" }, "Reptile Palettes (*.rpal)");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (!path.Contains(".")) path += ".rpal";
+                    System.IO.File.WriteAllBytes(path, new BinaryWriter(palette).GetOutput());
+                }
             }
-        }
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        if (palette.GetCount() > 1 && GUILayout.Button("-", GUILayout.Width(25)))
-        {
-            actQueue.Enqueue(new RemovePaletteColorAct());
-        }
-        GUILayout.FlexibleSpace();
-        if (palette.GetCount() < 256 && GUILayout.Button("+", GUILayout.Width(25)))
-        {
-            actQueue.Enqueue(new AddPaletteColorAct(new VColor(255, 255, 255, 255)));
-        }
-        GUILayout.EndHorizontal();
-        for (int i = 0; i < palette.GetCount(); i++)
-        {
-            if (i % 4 == 0)
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (palette.GetCount() > 1 && GUILayout.Button("-", GUILayout.Width(25)))
             {
-                if (i > 0) GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
+                actQueue.Enqueue(new RemovePaletteColorAct());
             }
-            VColor c = palette.GetColor(i);
-            index = Swatch(i == index, new Color32(c.r, c.g, c.b, c.a)) ? i : index;
+            GUILayout.FlexibleSpace();
+            if (palette.GetCount() < 256 && GUILayout.Button("+", GUILayout.Width(25)))
+            {
+                actQueue.Enqueue(new AddPaletteColorAct(new VColor(255, 255, 255, 255)));
+            }
+            GUILayout.EndHorizontal();
+            for (int i = 0; i < palette.GetCount(); i++)
+            {
+                if (i % 4 == 0)
+                {
+                    if (i > 0) GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                }
+                VColor c = palette.GetColor(i);
+                index = Swatch(i == index, new Color32(c.r, c.g, c.b, c.a)) ? i : index;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.EndScrollView();
         }
-        GUILayout.EndHorizontal();
-        GUILayout.EndScrollView();
+        GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
         
         if (index != ed.tile.GetPalette().GetIndex()) actQueue.Enqueue(new ChangePaletteIndexAct(index));
@@ -649,166 +684,170 @@ public class UI : MonoBehaviour
 
         GUILayout.BeginVertical("box", GUILayout.Width(145));
 
-        GUILayout.Label("Color");
+        showColorPicker = GUILayout.Toggle(showColorPicker, "Color", "boxhead");
 
-        bool isMouseDown = Event.current.type == EventType.MouseDown;
-        if (Event.current.type == EventType.MouseUp) svDrag = false;
-        bool drag = svDrag && Event.current.type == EventType.MouseDrag;
-        Vector2 mp = Event.current.mousePosition;
-
-        Color32 c = new Color32(color.r, color.g, color.b, color.a);
-        float hue, sat, val;
-        Color.RGBToHSV(c, out hue, out sat, out val);
-
-        if (hue != oldH || sat != oldS || val != oldV)
+        if (showColorPicker)
         {
-            int width = svTex.width;
-            int height = svTex.height;
-            Color32[] pixels = new Color32[width * height];
-            for (int x = 0; x < width; x ++)
+            GUILayout.Space(5f);
+            bool isMouseDown = Event.current.type == EventType.MouseDown;
+            if (Event.current.type == EventType.MouseUp) svDrag = false;
+            bool drag = svDrag && Event.current.type == EventType.MouseDrag;
+            Vector2 mp = Event.current.mousePosition;
+
+            Color32 c = new Color32(color.r, color.g, color.b, color.a);
+            float hue, sat, val;
+            Color.RGBToHSV(c, out hue, out sat, out val);
+
+            if (hue != oldH || sat != oldS || val != oldV)
             {
-                for (int y = 0; y < height; y ++)
+                int width = svTex.width;
+                int height = svTex.height;
+                Color32[] pixels = new Color32[width * height];
+                for (int x = 0; x < width; x++)
                 {
-                    pixels[x + y * width] = Color.HSVToRGB(hue, x / (width - 1f), y / (height - 1f));
+                    for (int y = 0; y < height; y++)
+                    {
+                        pixels[x + y * width] = Color.HSVToRGB(hue, x / (width - 1f), y / (height - 1f));
+                    }
                 }
-            }
-            svTex.SetPixels32(pixels);
-            svTex.Apply();
+                svTex.SetPixels32(pixels);
+                svTex.Apply();
 
-            for (int i = 0; i < 256; i++)
+                for (int i = 0; i < 256; i++)
+                {
+                    rTex.SetPixel(i, 0, new Color32((byte)i, c.g, c.b, 255));
+                    gTex.SetPixel(i, 0, new Color32(c.r, (byte)i, c.b, 255));
+                    bTex.SetPixel(i, 0, new Color32(c.r, c.g, (byte)i, 255));
+                }
+                rTex.Apply();
+                gTex.Apply();
+                bTex.Apply();
+
+                oldH = hue;
+                oldS = sat;
+                oldV = val;
+            }
+
+            GUILayout.BeginHorizontal();
+
+            Rect rect = GUILayoutUtility.GetRect(svTex.width / 2f, svTex.height / 2f);
+            rect.width = Mathf.Min(rect.width, svTex.width / 2f);
+            rect.height = Mathf.Min(rect.height, svTex.height / 2f);
+            GUI.DrawTexture(rect, svTex);
+            if ((isMouseDown || drag) && rect.Contains(mp))
             {
-                rTex.SetPixel(i, 0, new Color32((byte)i, c.g, c.b, 255));
-                gTex.SetPixel(i, 0, new Color32(c.r, (byte)i, c.b, 255));
-                bTex.SetPixel(i, 0, new Color32(c.r, c.g, (byte)i, 255));
+                svDrag = true;
+                if (isMouseDown) Event.current.Use();
+                mp.x = Mathf.Clamp(mp.x, rect.xMin, rect.xMax);
+                mp.y = Mathf.Clamp(mp.y, rect.yMin, rect.yMax);
+                int x = Mathf.RoundToInt(mp.x - rect.x) * 2;
+                int y = svTex.height - Mathf.RoundToInt(mp.y - rect.y) * 2;
+                Color32 tc = svTex.GetPixel(x, y);
+                color.r = tc.r;
+                color.g = tc.g;
+                color.b = tc.b;
             }
-            rTex.Apply();
-            gTex.Apply();
-            bTex.Apply();
 
-            oldH = hue;
-            oldS = sat;
-            oldV = val;
-        }
+            GUI.color = new Color32((byte)(255 - color.r), (byte)(255 - color.g), (byte)(255 - color.b), 255);
+            GUI.DrawTexture(new Rect(rect.x + rect.width * sat - 4f, rect.yMax - rect.height * val - 4f, 8f, 8f), svCursorTex);
+            GUI.color = Color.white;
 
-        GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
 
-        Rect rect = GUILayoutUtility.GetRect(svTex.width / 2f, svTex.height / 2f);
-        rect.width = Mathf.Min(rect.width, svTex.width / 2f);
-        rect.height = Mathf.Min(rect.height, svTex.height / 2f);
-        GUI.DrawTexture(rect, svTex);
-        if ((isMouseDown || drag) && rect.Contains(mp))
-        {
-            svDrag = true;
-            if (isMouseDown) Event.current.Use();
-            mp.x = Mathf.Clamp(mp.x, rect.xMin, rect.xMax);
-            mp.y = Mathf.Clamp(mp.y, rect.yMin, rect.yMax);
-            int x = Mathf.RoundToInt(mp.x - rect.x) * 2;
-            int y = svTex.height - Mathf.RoundToInt(mp.y - rect.y) * 2;
-            Color32 tc = svTex.GetPixel(x, y);
-            color.r = tc.r;
-            color.g = tc.g;
-            color.b = tc.b;
-        }
+            float newHue = GUILayout.VerticalSlider(hue, 0f, 1f, GUILayout.Height(svTex.height / 2f));
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), hTex);
+            if (newHue != hue)
+            {
+                if (sat == 0) sat = 7f / 255f;
+                Color32 tc = Color.HSVToRGB(newHue, sat, val);
+                color.r = tc.r;
+                color.g = tc.g;
+                color.b = tc.b;
+            }
 
-        GUI.color = new Color32((byte)(255 - color.r), (byte)(255 - color.g), (byte)(255 - color.b), 255);
-        GUI.DrawTexture(new Rect(rect.x + rect.width * sat - 4f, rect.yMax - rect.height * val - 4f, 8f, 8f), svCursorTex);
-        GUI.color = Color.white;
+            GUILayout.EndHorizontal();
 
-        GUILayout.FlexibleSpace();
+            int fieldWidth = 35;
 
-        float newHue = GUILayout.VerticalSlider(hue, 0f, 1f, GUILayout.Height(svTex.height / 2f));
-        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), hTex);
-        if (newHue != hue)
-        {
-            if (sat == 0) sat = 7f / 255f;
-            Color32 tc = Color.HSVToRGB(newHue, sat, val);
-            color.r = tc.r;
-            color.g = tc.g;
-            color.b = tc.b;
-        }
-
-        GUILayout.EndHorizontal();
-
-        int fieldWidth = 35;
-
-        GUILayout.BeginHorizontal();
-        color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
-        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), rTex);
-        GUI.color = rTex.GetPixel(0, 0).grayscale < 0.5f ? Color.white : Color.black;
-        GUI.Label(GUILayoutUtility.GetLastRect(), "Red", "tinylabel");
-        GUI.color = Color.white;
-        byte r;
-        if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
-        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), gTex);
-        GUI.color = gTex.GetPixel(0, 0).grayscale < 0.5f ? Color.white : Color.black;
-        GUI.Label(GUILayoutUtility.GetLastRect(), "Green", "tinylabel");
-        GUI.color = Color.white;
-        byte g;
-        if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
-        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bTex);
-        GUI.color = bTex.GetPixel(0, 0).grayscale < 0.5f ? Color.white : Color.black;
-        GUI.Label(GUILayoutUtility.GetLastRect(), "Blue", "tinylabel");
-        GUI.color = Color.white;
-        byte b;
-        if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
-        GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
-        GUI.Label(GUILayoutUtility.GetLastRect(), "Alpha", "tinylabel");
-        byte a;
-        if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
-        GUILayout.EndHorizontal();
-
-        if (showAdvancedColor)
-        {
             GUILayout.BeginHorizontal();
-            color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
+            color.r = (byte)GUILayout.HorizontalSlider(color.r, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), rTex);
+            GUI.color = rTex.GetPixel(0, 0).grayscale < 0.5f ? Color.white : Color.black;
+            GUI.Label(GUILayoutUtility.GetLastRect(), "Red", "tinylabel");
+            GUI.color = Color.white;
+            byte r;
+            if (byte.TryParse(GUILayout.TextField(color.r.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out r)) color.r = r;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            color.g = (byte)GUILayout.HorizontalSlider(color.g, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), gTex);
+            GUI.color = gTex.GetPixel(0, 0).grayscale < 0.5f ? Color.white : Color.black;
+            GUI.Label(GUILayoutUtility.GetLastRect(), "Green", "tinylabel");
+            GUI.color = Color.white;
+            byte g;
+            if (byte.TryParse(GUILayout.TextField(color.g.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out g)) color.g = g;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            color.b = (byte)GUILayout.HorizontalSlider(color.b, 0, 255);
+            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bTex);
+            GUI.color = bTex.GetPixel(0, 0).grayscale < 0.5f ? Color.white : Color.black;
+            GUI.Label(GUILayoutUtility.GetLastRect(), "Blue", "tinylabel");
+            GUI.color = Color.white;
+            byte b;
+            if (byte.TryParse(GUILayout.TextField(color.b.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out b)) color.b = b;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            color.a = (byte)GUILayout.HorizontalSlider(color.a, 0, 255);
             GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
-            GUI.Label(GUILayoutUtility.GetLastRect(), "Metal", "tinylabel");
-            byte m;
-            if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
+            GUI.Label(GUILayoutUtility.GetLastRect(), "Alpha", "tinylabel");
+            byte a;
+            if (byte.TryParse(GUILayout.TextField(color.a.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out a)) color.a = a;
             GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
-            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
-            GUI.Label(GUILayoutUtility.GetLastRect(), "Smooth", "tinylabel");
-            byte s;
-            if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
-            GUILayout.EndHorizontal();
+            if (showAdvancedColor)
+            {
+                GUILayout.BeginHorizontal();
+                color.m = (byte)GUILayout.HorizontalSlider(color.m, 0, 255);
+                GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+                GUI.Label(GUILayoutUtility.GetLastRect(), "Metal", "tinylabel");
+                byte m;
+                if (byte.TryParse(GUILayout.TextField(color.m.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out m)) color.m = m;
+                GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
-            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
-            GUI.Label(GUILayoutUtility.GetLastRect(), "Glow", "tinylabel");
-            byte e;
-            if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                color.s = (byte)GUILayout.HorizontalSlider(color.s, 0, 255);
+                GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+                GUI.Label(GUILayoutUtility.GetLastRect(), "Smooth", "tinylabel");
+                byte s;
+                if (byte.TryParse(GUILayout.TextField(color.s.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out s)) color.s = s;
+                GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
-            GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
-            GUI.Label(GUILayoutUtility.GetLastRect(), "Custom", "tinylabel");
-            byte u;
-            if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                color.e = (byte)GUILayout.HorizontalSlider(color.e, 0, 255);
+                GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+                GUI.Label(GUILayoutUtility.GetLastRect(), "Glow", "tinylabel");
+                byte e;
+                if (byte.TryParse(GUILayout.TextField(color.e.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out e)) color.e = e;
+                GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Randomize")) color = new VColor((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256), 255);
-            GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                color.u = (byte)GUILayout.HorizontalSlider(color.u, 0, 255);
+                GUI.DrawTexture(GUILayoutUtility.GetLastRect(), bwTex);
+                GUI.Label(GUILayoutUtility.GetLastRect(), "Custom", "tinylabel");
+                byte u;
+                if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Randomize")) color = new VColor((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256), 255);
+                GUILayout.EndHorizontal();
+            }
+
+            showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Advanced", "button");
         }
-
-        showAdvancedColor = GUILayout.Toggle(showAdvancedColor, "Show Advanced", "button");
 
         GUILayout.EndVertical();
         if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
