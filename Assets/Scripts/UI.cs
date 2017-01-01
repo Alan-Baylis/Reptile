@@ -546,7 +546,7 @@ public class UI : MonoBehaviour
         GUILayout.FlexibleSpace();
         if (palette.GetCount() < 256 && GUILayout.Button("+", GUILayout.Width(25)))
         {
-            actQueue.Enqueue(new AddPaletteColorAct(new VColor((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256), 255)));
+            actQueue.Enqueue(new AddPaletteColorAct(new VColor(255, 255, 255, 255)));
         }
         GUILayout.EndHorizontal();
         for (int i = 0; i < palette.GetCount(); i++)
@@ -801,6 +801,10 @@ public class UI : MonoBehaviour
             GUI.Label(GUILayoutUtility.GetLastRect(), "Custom", "tinylabel");
             byte u;
             if (byte.TryParse(GUILayout.TextField(color.u.ToString(), 3, GUILayout.MaxWidth(fieldWidth)), out u)) color.u = u;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Randomize")) color = new VColor((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256), 255);
             GUILayout.EndHorizontal();
         }
 
