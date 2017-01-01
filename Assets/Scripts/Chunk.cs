@@ -74,7 +74,8 @@ public class Chunk : MonoBehaviour
 
     public void Refresh()
     {
-        if (cachedVChunk == null) cachedVChunk = tile.GetTile().GetChunk(layerIndex, animationIndex, frameIndex);
+        // The preview chunk uses -1 for all indices, so don't try to grab an actual chunk
+        if (layerIndex != -1) cachedVChunk = tile.GetTile().GetChunk(layerIndex, animationIndex, frameIndex);
 
         bool layerTrans = (layerIndex >= 0) ? tile.GetTile().GetLayer(layerIndex).GetTransparent() : false;
         bool layerLine = (layerIndex >= 0) ? tile.GetTile().GetLayer(layerIndex).GetOutline() : false;
