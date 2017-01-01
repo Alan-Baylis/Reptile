@@ -418,6 +418,17 @@ public class UI : MonoBehaviour
             if (GUILayout.Button("16³")) actQueue.Enqueue(new ResizeTileAct(16, 16, 16));
             if (GUILayout.Button("32³")) actQueue.Enqueue(new ResizeTileAct(32, 32, 32));
             GUILayout.EndHorizontal();
+            GUILayout.Label("Import");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("VOX"))
+            {
+                string path = TinyFileDialogs.OpenFileDialog("Import VOX", Edit.GetDirectory(), new[] { "*.vox" }, "MagicaVoxel Model (*.vox)", false);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    actQueue.Enqueue(new LoadTileAct(new BinaryWriter(ExportUtil.VoxToTile(System.IO.File.ReadAllBytes(path))).GetOutput()));
+                }
+            }
+            GUILayout.EndHorizontal();
             GUILayout.Label("Export");
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("OBJ"))
@@ -428,6 +439,15 @@ public class UI : MonoBehaviour
                     if (!path.Contains(".")) path += ".obj";
                     System.IO.File.WriteAllText(path, ExportUtil.TileToObj(Edit.use.tile));
                     System.IO.File.WriteAllBytes(path.Substring(0, path.LastIndexOf('.')) + ".png", ExportUtil.PaletteToPng(Edit.use.tile.GetPalette()));
+                }
+            }
+            if (GUILayout.Button("VOX"))
+            {
+                string path = TinyFileDialogs.SaveFileDialog("Export VOX", Edit.GetDirectory(), new[] { "*.vox" }, "MagicaVoxel Model (*.vox)");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (!path.Contains(".")) path += ".vox";
+                    System.IO.File.WriteAllBytes(path, ExportUtil.TileToVox(Edit.use.tile));
                 }
             }
             if (GUILayout.Button("PNG"))
