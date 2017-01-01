@@ -418,6 +418,29 @@ public class UI : MonoBehaviour
             if (GUILayout.Button("16³")) actQueue.Enqueue(new ResizeTileAct(16, 16, 16));
             if (GUILayout.Button("32³")) actQueue.Enqueue(new ResizeTileAct(32, 32, 32));
             GUILayout.EndHorizontal();
+            GUILayout.Label("Export");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("OBJ"))
+            {
+                string path = TinyFileDialogs.SaveFileDialog("Export OBJ", Edit.GetDirectory(), new[] { "*.obj" }, "Wavefront OBJ (*.obj)");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (!path.Contains(".")) path += ".obj";
+                    System.IO.File.WriteAllText(path, ExportUtil.TileToObj(Edit.use.tile));
+                    System.IO.File.WriteAllBytes(path.Substring(0, path.LastIndexOf('.')) + ".png", ExportUtil.PaletteToPng(Edit.use.tile.GetPalette()));
+                }
+            }
+            if (GUILayout.Button("PNG"))
+            {
+                string path = TinyFileDialogs.SaveFileDialog("Export PNG", Edit.GetDirectory(), new[] { "*.png" }, "Portable Network Graphics (*.png)");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (!path.Contains(".")) path += ".png";
+                    System.IO.File.WriteAllBytes(path, ExportUtil.PaletteToPng(Edit.use.tile.GetPalette()));
+                }
+
+            }
+            GUILayout.EndHorizontal();
         }
 
         GUILayout.EndVertical();
