@@ -236,7 +236,7 @@ public static class ExportUtil
             i += 4;
             int contentLength = System.BitConverter.ToInt32(vox, i);
             i += 4;
-            int childrenLength = System.BitConverter.ToInt32(vox, i);
+            //int childrenLength = System.BitConverter.ToInt32(vox, i);
             i += 4;
             if (chunk == "MAIN")
             {

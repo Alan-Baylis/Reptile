@@ -22,6 +22,7 @@ public class UI : MonoBehaviour
     Queue<Act> actQueue = new Queue<Act>();
 
     bool showTool = true;
+    bool showToolOptions = true;
     bool showPalette = true;
     bool showRefPalette = false;
     bool showColorPicker = true;
@@ -147,7 +148,10 @@ public class UI : MonoBehaviour
         GUILayout.EndVertical();
         GUILayout.BeginVertical();
         GUILayout.BeginHorizontal();
+        GUILayout.BeginVertical();
         Tool();
+        ToolOptions();
+        GUILayout.EndVertical();
         Console();
         GUILayout.FlexibleSpace();
         KeyBindings();
@@ -205,34 +209,17 @@ public class UI : MonoBehaviour
         {
             Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill", "Box" }, 1, "tool");
             if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
-            GUILayout.Label("Brush Type");
-            Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 1);
-            if (brush != Edit.use.brush) actQueue.Enqueue(new ChangeBrushAct(brush));
-            GUILayout.Label("Brush Size");
-            GUILayout.BeginHorizontal();
-            GUI.enabled = ed.brushSize > 1;
-            if (GUILayout.Button("-")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize - 1));
-            GUI.enabled = true;
-            int brushSize;
-            if (int.TryParse(GUILayout.TextField(ed.brushSize.ToString()), out brushSize))
-            {
-                if (brushSize != ed.brushSize) actQueue.Enqueue(new ChangeBrushSizeAct(brushSize));
-            }
-            if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
-            GUILayout.EndHorizontal();
-            GUILayout.Label("Symmetry");
-            GUILayout.BeginHorizontal();
-            GUI.color = Color.Lerp(Color.red, Color.white, 0.5f);
-            bool mirrorX = GUILayout.Toggle(Edit.use.mirrorX, "X", "button");
-            GUI.color = Color.Lerp(Color.green, Color.white, 0.5f);
-            bool mirrorY = GUILayout.Toggle(Edit.use.mirrorY, "Y", "button");
-            GUI.color = Color.Lerp(Color.blue, Color.white, 0.5f);
-            bool mirrorZ = GUILayout.Toggle(Edit.use.mirrorZ, "Z", "button");
-            GUI.color = Color.white;
-            if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
-                actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
-            GUILayout.EndHorizontal();
-            GUILayout.Label("Tool Options");
+        }
+        GUILayout.EndVertical();
+        if (repaint) boxRects.Add(GUILayoutUtility.GetLastRect());
+    }
+
+    void ToolOptions()
+    {
+        GUILayout.BeginVertical("box");
+        showToolOptions = GUILayout.Toggle(showToolOptions, "Tool Options", "boxhead");
+        if (showToolOptions)
+        {
             if (Edit.use.bindPlaneLock.IsHeld())
             {
                 bool planeLock = !GUILayout.Toggle(!Edit.use.planeLock, "Plane Lock", "button");
@@ -243,7 +230,37 @@ public class UI : MonoBehaviour
                 bool planeLock = GUILayout.Toggle(Edit.use.planeLock, "Plane Lock", "button");
                 if (planeLock != Edit.use.planeLock) actQueue.Enqueue(new ChangePlaneLockAct(planeLock));
             }
-            if (tool == Edit.Tool.Fill)
+            GUILayout.Label("Symmetry");
+            GUILayout.BeginHorizontal();
+            GUI.color = Color.Lerp(Color.red, Color.white, 0.5f);
+            bool mirrorX = GUILayout.Toggle(Edit.use.mirrorX, "X", "button");
+            GUI.color = Color.Lerp(Color.green, Color.white, 0.5f);
+            bool mirrorY = GUILayout.Toggle(Edit.use.mirrorY, "Y", "button");
+            GUI.color = Color.Lerp(Color.Lerp(Color.blue, Color.cyan, .5f), Color.white, 0.5f);
+            bool mirrorZ = GUILayout.Toggle(Edit.use.mirrorZ, "Z", "button");
+            GUI.color = Color.white;
+            if (mirrorX != Edit.use.mirrorX || mirrorY != Edit.use.mirrorY || mirrorZ != Edit.use.mirrorZ)
+                actQueue.Enqueue(new ChangeSymmetryAct(mirrorX, mirrorY, mirrorZ));
+            GUILayout.EndHorizontal();
+            if (Edit.use.tool == Edit.Tool.Place || Edit.use.tool == Edit.Tool.Paint)
+            {
+                GUILayout.Label("Brush Type");
+                Edit.Brush brush = (Edit.Brush)GUILayout.SelectionGrid((int)ed.brush, new[] { "Cube", "Sphere", "Diamond" }, 1);
+                if (brush != Edit.use.brush) actQueue.Enqueue(new ChangeBrushAct(brush));
+                GUILayout.Label("Brush Size");
+                GUILayout.BeginHorizontal();
+                GUI.enabled = ed.brushSize > 1;
+                if (GUILayout.Button("-")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize - 1));
+                GUI.enabled = true;
+                int brushSize;
+                if (int.TryParse(GUILayout.TextField(ed.brushSize.ToString()), out brushSize))
+                {
+                    if (brushSize != ed.brushSize) actQueue.Enqueue(new ChangeBrushSizeAct(brushSize));
+                }
+                if (GUILayout.Button("+")) actQueue.Enqueue(new ChangeBrushSizeAct(ed.brushSize + 1));
+                GUILayout.EndHorizontal();
+            }
+            if (Edit.use.tool == Edit.Tool.Fill)
             {
                 bool fillDiagonals = GUILayout.Toggle(Edit.use.fillDiagonals, "Diagonals", "button");
                 if (fillDiagonals != Edit.use.fillDiagonals) actQueue.Enqueue(new ChangeFillDiagonalsAct(fillDiagonals));
@@ -555,7 +572,6 @@ public class UI : MonoBehaviour
         int index = -1;
         if (showRefPalette)
         {
-            refPalScroll = GUILayout.BeginScrollView(refPalScroll);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Load"))
             {
@@ -566,6 +582,7 @@ public class UI : MonoBehaviour
                 }
             }
             GUILayout.EndHorizontal();
+            refPalScroll = GUILayout.BeginScrollView(refPalScroll);
             for (int i = 0; i < Edit.use.refPalette.GetCount(); i++)
             {
                 if (i % 4 == 0)
@@ -593,7 +610,6 @@ public class UI : MonoBehaviour
         VPalette palette = Edit.use.tile.GetPalette();
         if (showPalette)
         {
-            palScroll = GUILayout.BeginScrollView(palScroll);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Load"))
             {
@@ -624,6 +640,7 @@ public class UI : MonoBehaviour
                 actQueue.Enqueue(new AddPaletteColorAct(new VColor(255, 255, 255, 255)));
             }
             GUILayout.EndHorizontal();
+            palScroll = GUILayout.BeginScrollView(palScroll);
             for (int i = 0; i < palette.GetCount(); i++)
             {
                 if (i % 4 == 0)

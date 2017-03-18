@@ -36,8 +36,8 @@ public class Edit : MonoBehaviour
     public Binding bindToolPlace;
     public Binding bindToolPaint;
     public Binding bindToolFill;
-    public Binding bindToolMove;
     public Binding bindToolBox;
+    public Binding bindToolMove;
     public Binding bindToolWand;
 
     public Binding bindUseTool;
