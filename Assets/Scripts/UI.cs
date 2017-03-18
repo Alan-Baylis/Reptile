@@ -66,7 +66,6 @@ public class UI : MonoBehaviour
             else msg = "<color=red>" + msg + "</color>";
             errMsgs.Add(msg);
         };
-        Profiler.maxNumberOfSamplesPerFrame = -1;
     }
 
     void Start()
