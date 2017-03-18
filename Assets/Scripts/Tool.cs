@@ -140,7 +140,7 @@ public class Tool : MonoBehaviour
                 cursor.gameObject.SetActive(false);
             }
         }
-        if (toolHeld)
+        if (toolHeld && cursor.gameObject.activeSelf)
         {
             byte currentColor = (byte)Edit.use.tile.GetPalette().GetIndex();
             if (Edit.use.tool == Edit.Tool.Place)
