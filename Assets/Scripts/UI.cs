@@ -207,7 +207,7 @@ public class UI : MonoBehaviour
         showTool = GUILayout.Toggle(showTool, "Tool", "boxhead");
         if (showTool)
         {
-            Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill", "Box" }, 1, "tool");
+            Edit.Tool tool = (Edit.Tool)GUILayout.SelectionGrid((int)ed.tool, new[] { "Place", "Paint", "Fill", "Box", "Picker" }, 1, "tool");
             if (tool != Edit.use.tool) actQueue.Enqueue(new ChangeToolAct(tool));
         }
         GUILayout.EndVertical();
@@ -701,6 +701,7 @@ public class UI : MonoBehaviour
             Edit.use.bindToolPaint,
             Edit.use.bindToolFill,
             Edit.use.bindToolBox,
+            Edit.use.bindToolPicker,
             Edit.use.bindUseTool,
             Edit.use.bindUseToolAlt,
             Edit.use.bindPlaneLock

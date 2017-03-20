@@ -37,8 +37,7 @@ public class Edit : MonoBehaviour
     public Binding bindToolPaint;
     public Binding bindToolFill;
     public Binding bindToolBox;
-    public Binding bindToolMove;
-    public Binding bindToolWand;
+    public Binding bindToolPicker;
 
     public Binding bindUseTool;
     public Binding bindUseToolAlt;
@@ -58,8 +57,7 @@ public class Edit : MonoBehaviour
         Paint,
         Fill,
         Box,
-        Move,
-        Wand
+        Picker
     }
 
     public enum Brush
@@ -90,8 +88,7 @@ public class Edit : MonoBehaviour
         if (bindToolPaint.IsPressed()) Do(new ChangeToolAct(Tool.Paint));
         if (bindToolFill.IsPressed()) Do(new ChangeToolAct(Tool.Fill));
         if (bindToolBox.IsPressed()) Do(new ChangeToolAct(Tool.Box));
-        if (bindToolMove.IsPressed()) Do(new ChangeToolAct(Tool.Move));
-        if (bindToolWand.IsPressed()) Do(new ChangeToolAct(Tool.Wand));
+        if (bindToolPicker.IsPressed()) Do(new ChangeToolAct(Tool.Picker));
         if (batch.Count > 0 && Time.time > batchTime)
         {
             DoBatch();

@@ -1083,19 +1083,9 @@ MonoBehaviour:
     ctrl: 0
     alt: 0
     blockedByUI: 0
-  bindToolMove:
-    name: 
+  bindToolPicker:
+    name: Select Picker Tool
     key: 116
-    btn: -1
-    axis: 
-    negateAxis: 0
-    shift: 0
-    ctrl: 0
-    alt: 0
-    blockedByUI: 0
-  bindToolWand:
-    name: 
-    key: 121
     btn: -1
     axis: 
     negateAxis: 0
