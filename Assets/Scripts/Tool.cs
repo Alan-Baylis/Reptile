@@ -170,6 +170,16 @@ public class Tool : MonoBehaviour
                 else
                     BoxFill(sx, sy, sz, px + nx, py + ny, pz + nz, currentColor, PaintMode.Empty);
             }
+            if (Edit.use.tool == Edit.Tool.Picker)
+            {
+                if (!IsOutOfBounds(px, py, pz))
+                {
+                    if (toolAlt)
+                        Edit.Do(new ChangePaletteColorAct(Edit.use.tile.GetPalette().GetColor(GetChunk().GetPaletteIndexAt(px, py, pz)), Edit.use.tile.GetPalette().GetIndex()));
+                    else
+                        Edit.Do(new ChangePaletteIndexAct(GetChunk().GetPaletteIndexAt(px, py, pz)));
+                }
+            }
         }
         if (editing && !toolHeld)
         {

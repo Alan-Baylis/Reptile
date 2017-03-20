@@ -34,21 +34,25 @@ public class Chunk : MonoBehaviour
         mr = GetComponent<MeshRenderer>();
     }
 
-    protected virtual VTileChunk GetChunk()
+    protected VTileChunk cachedVChunk;
+
+    protected VTileChunk GetChunk()
     {
-        return tile.GetTile().GetChunk(layerIndex, animationIndex, frameIndex);
+        return cachedVChunk;
     }
 
     public int GetIndex(int x, int y, int z)
     {
-        return GetChunk().GetPaletteIndexAt(x, y, z);
+        return cachedVChunk.GetPaletteIndexAt(x, y, z);
     }
+
+    int colorIndexTemp;
 
     public VColor GetColor(int x, int y, int z)
     {
-        int index = GetIndex(x, y, z);
-        if (index >= tile.GetTile().GetPalette().GetCount()) return new VColor(255, 0, 255, 255, 0, 0, 255, 0);
-        return tile.GetTile().GetPalette().GetColor(GetIndex(x, y, z));
+        colorIndexTemp = cachedVChunk.GetPaletteIndexAt(x, y, z);
+        if (colorIndexTemp >= tile.GetTile().GetPalette().GetCount()) return new VColor(255, 0, 255, 255, 0, 0, 255, 0);
+        else return tile.GetTile().GetPalette().GetColor(colorIndexTemp);
     }
 
     void LateUpdate()
@@ -59,6 +63,8 @@ public class Chunk : MonoBehaviour
 
         bool active = layerIndex == t.GetLayerIndex() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex();
 
+        cachedVChunk = t.GetChunk(layerIndex, animationIndex, frameIndex);
+
         if (GetChunk().IsDirty() || t.GetPalette().IsDirty() || l.IsDirty() || a.IsDirty()) Refresh();
         bool visible = l.GetVisible() && animationIndex == t.GetAnimationIndex() && frameIndex == t.GetFrameIndex();
         gameObject.layer = (visible && (active || (!l.GetOutline() && !l.GetTransparent()))) ? 10 : 0;
@@ -68,6 +74,9 @@ public class Chunk : MonoBehaviour
 
     public void Refresh()
     {
+        // The preview chunk uses -1 for all indices, so don't try to grab an actual chunk
+        if (layerIndex != -1) cachedVChunk = tile.GetTile().GetChunk(layerIndex, animationIndex, frameIndex);
+
         bool layerTrans = (layerIndex >= 0) ? tile.GetTile().GetLayer(layerIndex).GetTransparent() : false;
         bool layerLine = (layerIndex >= 0) ? tile.GetTile().GetLayer(layerIndex).GetOutline() : false;
 

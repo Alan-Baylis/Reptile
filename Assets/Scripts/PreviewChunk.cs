@@ -21,6 +21,9 @@ public class PreviewChunk : Chunk
     void LateUpdate()
     {
         VTile t = tile.GetTile();
+
+        cachedVChunk = chunk;
+
         if (chunk.GetWidth() != t.GetWidth() ||
             chunk.GetHeight() != t.GetHeight() ||
             chunk.GetDepth() != t.GetDepth())
@@ -31,11 +34,6 @@ public class PreviewChunk : Chunk
         if (GetChunk().IsDirty() || t.GetPalette().IsDirty()) Refresh();
 
         mr.enabled = Tool.editing;
-    }
-
-    protected override VTileChunk GetChunk()
-    {
-        return chunk;
     }
 
     public void Clear()
